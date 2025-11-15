@@ -1,6 +1,7 @@
 # プルリクエストテンプレート
 
-**Think in English and output in Japanese.**
+> 言語設定については [共通インストラクション](./instructions/common.instructions.md#言語設定) を参照。
+
 Refer to the files included in this PR and create a pull request following the template below.
 The first line should contain the pull request title.
 

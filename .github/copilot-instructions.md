@@ -1,3 +1,3 @@
 # GitHub Copilot Code Review Instructions
 
-Think in English, output in Japanese.
+> 言語設定については [共通インストラクション](./instructions/common.instructions.md#言語設定) を参照。
