@@ -7,7 +7,10 @@
     ],
     "chat.tools.terminal.autoApprove": {
         "pnpm exec textlint": true,
-        "pnpm exec markdownlint-cli2 --fix": true
+        "pnpm exec markdownlint-cli2 --fix": true,
+        "fd": true,
+        "rg": true,
+        "ast-grep": true
     },
     "github.copilot.chat.commitMessageGeneration.instructions": [
         {
