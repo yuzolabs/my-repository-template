@@ -16,7 +16,7 @@
 
 When you need to call tools from the shell, use this guide:
 
-- Exclude bulky folders to keep searches fast and relevant: `.git`, `node_modules`, `coverage`, `out`, `dist`. `.venv`.
+- Exclude bulky folders to keep searches fast and relevant: `.git`, `node_modules`, `coverage`, `out`, `dist`, `.venv`.
 - Find files by file name: `fd`
 - Find files with path name: `fd -p <file-path>`
 - List files in a directory: `fd . <directory>`
