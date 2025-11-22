@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "pnpm install --frozen-lockfile",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup Pre-commit",
+      "type": "shell",
+      "command": "if [ ! -f .git/hooks/pre-commit ]; then pre-commit install; else echo 'pre-commit hook already installed'; fi",
+      "windows": {
+        "command": "if (-not (Test-Path .git/hooks/pre-commit)) { pre-commit install } else { echo 'pre-commit hook already installed' }"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install & Setup",
+      "dependsOn": [
+        "Install Dependencies",
+        "Setup Pre-commit"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}
