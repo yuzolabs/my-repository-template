@@ -4,8 +4,7 @@
       "sentence-length": {
         "max": 200,
         "skipPatterns": [
-          "/```[\\s\\S]*?```/",
-          "/```\\w*\\n[\\s\\S]*?```/",
+          "/```[\\s\\S]*?```/m",
           "/\\|[^\\|]*\\|/",
           "/^>\\s.*$/m",
           "/^[-\\*\\+]\\s.*$/m",
@@ -39,6 +38,8 @@
           "/^※\\s*[^。]*$/m"
         ],
         "allowPeriodMarks": [
+          ":::",
+          "、",
           "：",
           "…",
           "...",
@@ -80,8 +81,14 @@
         }
       },
       "ja-hiragana-keishikimeishi": true,
-      "ja-no-abusage": true
+      "ja-no-abusage": true,
+      "no-exclamation-question-mark": false
     },
-    "@textlint-ja/textlint-rule-preset-ai-writing": true
+    "@textlint-ja/textlint-rule-preset-ai-writing": true,
+    "ja-space-between-half-and-full-width": {
+      "space": [
+        "alphabets"
+      ]
+    }
   }
 }
