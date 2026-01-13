@@ -1,4 +1,8 @@
-コミットメッセージは Conventional Commits 規約に準拠すること。
+---
+description: Conventional Commitsでコミットメッセージを作成
+---
+
+Conventional Commits 規約に準拠したコミットメッセージを作成してください。
 
 ## フォーマット
 
@@ -26,9 +30,3 @@
 
 - description は日本語で50文字以内とすること。
 - 破壊的な変更の場合は、`!`を type の後に追加すること。
-
-## 例
-
-feat: ユーザー認証機能を追加
-
-JWT ベースの認証システムをリフレッシュトークン付きで実装

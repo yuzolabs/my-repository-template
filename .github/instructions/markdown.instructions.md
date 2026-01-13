@@ -4,22 +4,22 @@ applyTo: "**/*.md"
 
 # Markdownファイル用カスタムインストラクション
 
-Markdownファイルを編集した後は、以下のツールで検証と修正を行うこと。
+Markdown ファイルを編集した後は、以下のツールで検証と修正すること。
 
 ## textlint
 
-Markdownファイルの日本語表記やスタイルをチェックします。
+Markdown ファイルの日本語表記やスタイルをチェックします。
 
 ```bash
 pnpm exec textlint "<markdown-file-path>"
 ```
 
-問題が指摘された場合は必要な修正を行い、エラーがなくなるまで繰り返し実行すること。
+問題が指摘された場合は、即座に修正し、エラーがなくなるまで繰り返し実行すること。
 但し、修正が困難な場合はユーザーに報告すること。
 
 ## markdownlint
 
-Markdownの構文とフォーマットをチェックします。
+Markdown の構文とフォーマットをチェックします。
 
 ```bash
 pnpm exec markdownlint-cli2 --fix "<markdown-file-path>"

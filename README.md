@@ -11,4 +11,4 @@ pre-commit install
 
 ### MCPサーバーのセットアップ
 
-環境変数`CONTEXT7_API_KEY`にContext7のAPIキーを設定してください。
+環境変数`CONTEXT7_API_KEY`に Context7の API キーを設定してください。
