@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "tokyonight",
+  "instructions": [
+    "./AGENTS.md"
+  ],
+  "permission": {
+    "webfetch": "allow",
+    "skill": {
+      "*": "allow"
+    }
+  },
+  "mcp": {
+    "upstash/context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:context7_api_key}"
+      },
+      "enabled": true
+    },
+    "perplexity": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
+      "environment": {
+        "PERPLEXITY_API_KEY": "{env:PERPLEXITY_API_KEY}"
+      }
+    }
+  }
+}
