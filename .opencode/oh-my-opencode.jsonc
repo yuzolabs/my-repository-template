@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  /* Agent overrides - customize models for specific tasks */
+  "agents": {
+    "Sisyphus": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "oracle": {
+      "model": "github-copilot/gpt-5.2"
+    },
+    "explore": {
+      "model": "github-copilot/grok-code-fast-1"
+    },
+    "librarian": {
+      "model": "github-copilot/gemini-3-flash-preview"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "github-copilot/gemini-3-pro-preview"
+    },
+    "document-writer": {
+      "model": "github-copilot/gemini-3-flash-preview"
+    },
+    "Prometheus (Planner)": {
+      "model": "github-copilot/claude-opus-4.5"
+    },
+    "orchestrator-sisyphus": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "Metis (Plan Consultant)": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "Momus (Plan Reviewer)": {
+      "model": "zai-coding-plan/glm-4.7"
+    }
+  }
+}

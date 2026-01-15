@@ -30,5 +30,8 @@
         "PERPLEXITY_API_KEY": "{env:PERPLEXITY_API_KEY}"
       }
     }
-  }
+  },
+  "plugin": [
+    "oh-my-opencode"
+  ]
 }

@@ -5,7 +5,7 @@
 このリポジトリを使用する前に、以下のコマンドを実行してください。
 
 ```bash
-pnpm install --frozen-lockfile
+bun install --frozen-lockfile
 pre-commit install
 ```
 

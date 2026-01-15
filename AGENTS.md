@@ -4,7 +4,7 @@
 
 ## Environment
 
-- pnpm (always use `pnpm install --frozen-lockfile` to install dependencies)
+- bun (always use `bun install --frozen-lockfile` to install dependencies)
 - uv (python packages management)
 
 ## Notice
