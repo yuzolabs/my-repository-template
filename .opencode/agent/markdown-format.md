@@ -1,6 +1,7 @@
 ---
 description: Markdownファイルが新規作成、編集された時に整形を行う
 mode: subagent
+model: github-copilot/gemini-3-flash-preview
 permissions:
   read: allow
   list: allow
