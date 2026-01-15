@@ -11,7 +11,7 @@ Markdown ファイルを編集した後は、以下のツールで検証と修�
 Markdown ファイルの日本語表記やスタイルをチェックします。
 
 ```bash
-pnpm exec textlint "<markdown-file-path>"
+bunx textlint "<markdown-file-path>"
 ```
 
 問題が指摘された場合は、即座に修正し、エラーがなくなるまで繰り返し実行すること。
@@ -22,7 +22,7 @@ pnpm exec textlint "<markdown-file-path>"
 Markdown の構文とフォーマットをチェックします。
 
 ```bash
-pnpm exec markdownlint-cli2 --fix "<markdown-file-path>"
+bunx markdownlint-cli2 --fix "<markdown-file-path>"
 ```
 
 自動修正可能な問題は`--fix`オプションで自動的に修正されます。

@@ -19,14 +19,14 @@ description: markdownlint-cli2とtextlintを繰り返し実行して、Markdown�
 2. 以下のコマンドを実行して、Markdown の構文エラーを自動修正します。
 
    ```bash
-   pnpm exec markdownlint-cli2 --fix <path/to/file.md>
-   pnpm exec textlint --fix <path/to/file.md>
+   bunx markdownlint-cli2 --fix <path/to/file.md>
+   bunx textlint --fix <path/to/file.md>
    ```
 
 3. 以下のコマンドを実行して、手動では修正できない日本語の文章の問題を取得します。
 
    ```bash
-   pnpm exec textlint <path/to/file.md>
+   bunx textlint <path/to/file.md>
    ```
 
 4. 手動で修正が必要な箇所を特定し、適切に修正します。

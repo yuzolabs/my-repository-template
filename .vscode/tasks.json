@@ -4,7 +4,10 @@
     {
       "label": "Install Dependencies",
       "type": "shell",
-      "command": "pnpm install --frozen-lockfile",
+      "command": "if [ -f bun.lock ] || [ -f bun.lockb ]; then bun install --frozen-lockfile; else bun install; fi",
+      "windows": {
+        "command": "if (Test-Path bun.lock -or Test-Path bun.lockb) { bun install --frozen-lockfile } else { bun install }"
+      },
       "problemMatcher": []
     },
     {
