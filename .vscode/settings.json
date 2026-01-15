@@ -3,7 +3,8 @@
         "textlint",
         "markdownlint",
         "pre-commit",
-        "copilot"
+        "copilot",
+        "oh-my-opencode"
     ],
     "chat.tools.terminal.autoApprove": {
         "bunx textlint": true,
