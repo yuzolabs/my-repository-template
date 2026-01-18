@@ -1,9 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
-  /* Agent overrides - customize models for specific tasks */
   "agents": {
     "Sisyphus": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "github-copilot/claude-opus-4.5"
     },
     "oracle": {
       "model": "github-copilot/gpt-5.2"
@@ -23,14 +22,55 @@
     "Prometheus (Planner)": {
       "model": "github-copilot/claude-opus-4.5"
     },
+    "multimodal-looker": {
+      "model": "github-copilot/gemini-3-flash-preview"
+    },
     "orchestrator-sisyphus": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "github-copilot/claude-sonnet-4.5"
     },
     "Metis (Plan Consultant)": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "github-copilot/gpt-5.2"
     },
     "Momus (Plan Reviewer)": {
+      "model": "github-copilot/gpt-5.2"
+    },
+    "Sisyphus-Junior": {
       "model": "zai-coding-plan/glm-4.7"
+    }
+  },
+  "categories": {
+    "visual-engineering": {
+      "model": "github-copilot/gemini-3-pro-preview"
+    },
+    "ultrabrain": {
+      "model": "github-copilot/gpt-5.2"
+    },
+    "artistry": {
+      "model": "github-copilot/gemini-3-pro-preview"
+    },
+    "quick": {
+      "model": "github-copilot/claude-haiku-4.5"
+    },
+    "most-capable": {
+      "model": "github-copilot/claude-opus-4.5"
+    },
+    "writing": {
+      "model": "github-copilot/gemini-3-flash-preview"
+    },
+    "general": {
+      "model": "github-copilot/gpt-5.2"
+    },
+    "visual": {
+      "model": "github-copilot/gemini-3-pro-preview"
+    },
+    "business-logic": {
+      "model": "github-copilot/gpt-5.2"
+    }
+  },
+  "background_task": {
+    "defaultConcurrency": 5,
+    "modelConcurrency": {
+      "zai-coding-plan/glm-4.7": 3
     }
   }
 }
