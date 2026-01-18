@@ -1,0 +1,11 @@
+[project]
+name = "my-repository-template"
+version = "0.1.0"
+description = "Repository template"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+]
