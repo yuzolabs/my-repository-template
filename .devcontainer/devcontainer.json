@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
-	"name": "Debian",
+	"name": "my-repository-template",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"build": {
 		"dockerfile": "Dockerfile",
@@ -34,8 +34,8 @@
 		"GH_TOKEN": "${localEnv:GH_TOKEN}"
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/root/.local/share/opencode/auth.json,type=bind,readonly"
+		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly"
 	],
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root"
+	"remoteUser": "node"
 }
