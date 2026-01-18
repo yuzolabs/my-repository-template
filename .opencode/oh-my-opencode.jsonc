@@ -72,5 +72,8 @@
     "modelConcurrency": {
       "zai-coding-plan/glm-4.7": 3
     }
+  },
+  "git_master": {
+    "include_co_authored_by": false
   }
 }
