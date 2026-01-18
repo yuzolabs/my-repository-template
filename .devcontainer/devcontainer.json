@@ -12,7 +12,20 @@
 		"vscode": {
 			"extensions": [
 				"charliermarsh.ruff",
-				"ms-python.python"
+				"ms-python.python",
+				"GitHub.copilot-chat",
+				"MS-CEINTL.vscode-language-pack-ja",
+				"GitHub.vscode-pull-request-github",
+				"vivaxy.vscode-conventional-commits",
+				"tamasfe.even-better-toml",
+				"mhutchie.git-graph",
+				"donjayamanne.githistory",
+				"eamodio.gitlens",
+				"yzhang.markdown-all-in-one",
+				"shd101wyy.markdown-preview-enhanced",
+				"DavidAnson.vscode-markdownlint",
+				"mechatroner.rainbow-csv",
+				"mosapride.zenkaku"
 			]
 		}
 	},
