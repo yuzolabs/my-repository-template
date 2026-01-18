@@ -1,0 +1,41 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+	"name": "my-repository-template",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff",
+				"ms-python.python",
+				"GitHub.copilot-chat",
+				"MS-CEINTL.vscode-language-pack-ja",
+				"GitHub.vscode-pull-request-github",
+				"vivaxy.vscode-conventional-commits",
+				"tamasfe.even-better-toml",
+				"mhutchie.git-graph",
+				"donjayamanne.githistory",
+				"eamodio.gitlens",
+				"yzhang.markdown-all-in-one",
+				"shd101wyy.markdown-preview-enhanced",
+				"DavidAnson.vscode-markdownlint",
+				"mechatroner.rainbow-csv",
+				"mosapride.zenkaku"
+			]
+		}
+	},
+	"remoteEnv": {
+		// ローカルのトークン変数をコンテナ内の環境変数として渡す
+		"GH_TOKEN": "${localEnv:GH_TOKEN}"
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly"
+	],
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "node"
+}

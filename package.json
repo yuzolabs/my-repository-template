@@ -10,7 +10,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "oh-my-opencode": "^3.0.0-beta.7",
+    "oh-my-opencode": "^3.0.0-beta.10",
     "@textlint-ja/textlint-rule-preset-ai-writing": "^1.6.1",
     "markdownlint-cli2": "^0.18.1",
     "textlint": "^15.3.0",
