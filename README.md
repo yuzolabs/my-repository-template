@@ -12,3 +12,8 @@ pre-commit install
 ### MCPサーバーのセットアップ
 
 環境変数`CONTEXT7_API_KEY`に Context7の API キーを設定してください。
+
+### Dev Containerについて
+
+このリポジトリをデフォルトの名前でcloneすることを想定しています。
+名前を変えると動作しなくなる可能性があります。

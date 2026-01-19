@@ -34,7 +34,8 @@
 		"GH_TOKEN": "${localEnv:GH_TOKEN}"
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly"
+		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
+		"source=${localWorkspaceFolder}/../my-repo,target=/workspaces/my-repository-template,type=bind"
 	],
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "node"
