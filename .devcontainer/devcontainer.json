@@ -35,8 +35,11 @@
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
-		"source=${localWorkspaceFolder}/../my-repo,target=/workspaces/my-repository-template,type=bind"
+		"source=${localWorkspaceFolder}/../../my-repository-template,target=/workspaces/my-repository-template,type=bind"
 	],
+	"workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,type=bind",
+	"workspaceFolder": "/workspaces/my-repository-template.worktrees/${localWorkspaceFolderBasename}",
+	"postStartCommand": "bash -lc '{ MAIN=/workspaces/my-repository-template; WT=/workspaces/my-repository-template.worktrees/${localWorkspaceFolderBasename}; if [ -d $MAIN/.git ] && [ -d $WT ]; then if git worktree repair -h 2>&1 | grep -q -- --relative-paths; then git -C $MAIN worktree repair --relative-paths $WT; else git -C $MAIN worktree repair $WT; fi; fi; } || true'",
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "node"
 }
