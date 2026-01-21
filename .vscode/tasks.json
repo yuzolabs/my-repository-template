@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "if [ -f bun.lock ] || [ -f bun.lockb ]; then bun install --frozen-lockfile; else bun install; fi",
       "windows": {
-        "command": "if (Test-Path bun.lock -or Test-Path bun.lockb) { bun install --frozen-lockfile } else { bun install }"
+        "command": "if ((Test-Path bun.lock) -or (Test-Path bun.lockb)) { bun install --frozen-lockfile } else { bun install }"
       },
       "problemMatcher": []
     },
