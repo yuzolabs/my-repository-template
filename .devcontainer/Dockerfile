@@ -29,3 +29,9 @@ ENV PATH=${BUN_INSTALL}/bin:${PATH}
 # Install opencode(global)
 USER node
 RUN bun add -g opencode-ai
+
+# Install agent-browser
+# USER root
+RUN npm install -g agent-browser
+RUN agent-browser install --with-deps
+# USER node

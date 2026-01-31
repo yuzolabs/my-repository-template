@@ -34,7 +34,7 @@
 		"GH_TOKEN": "${localEnv:GH_TOKEN}"
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
+		"source=${localEnv:USERPROFILE}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
 		"source=${localWorkspaceFolder}/../../my-repository-template,target=/workspaces/my-repository-template,type=bind"
 	],
 	"workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,type=bind",
