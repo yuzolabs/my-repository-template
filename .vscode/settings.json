@@ -2,7 +2,7 @@
     "conventionalCommits.scopes": [
         "textlint",
         "markdownlint",
-        "pre-commit",
+        "prek",
         "copilot",
         "oh-my-opencode",
         "devcontainer"

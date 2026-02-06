@@ -17,11 +17,11 @@
       "problemMatcher": []
     },
     {
-      "label": "Setup Pre-commit",
+      "label": "Setup Prek",
       "type": "shell",
-      "command": "if [ ! -f .git/hooks/pre-commit ]; then uv run --active pre-commit install; else echo 'pre-commit hook already installed'; fi",
+      "command": "if [ ! -f .git/hooks/pre-commit ]; then uv run --active prek install; else echo 'pre-commit hook already installed'; fi",
       "windows": {
-        "command": "if (-not (Test-Path .git/hooks/pre-commit)) { uv run --active pre-commit install } else { echo 'pre-commit hook already installed' }"
+        "command": "if (-not (Test-Path .git/hooks/pre-commit)) { uv run --active prek install } else { echo 'pre-commit hook already installed' }"
       },
       "problemMatcher": [],
       "dependsOn": [
@@ -32,7 +32,7 @@
       "label": "Install & Setup",
       "dependsOn": [
         "Install Dependencies",
-        "Setup Pre-commit"
+        "Setup Prek"
       ],
       "dependsOrder": "sequence",
       "problemMatcher": [],
