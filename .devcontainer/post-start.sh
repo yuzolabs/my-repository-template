@@ -26,6 +26,6 @@ git -C "$MAIN" worktree repair --relative-paths "$WT" 2>/dev/null || git -C "$MA
 
 # フック設定
 [ -d "$MAIN/.git/hooks" ] && sudo chown -R node:node "$MAIN/.git/hooks"
-[ ! -f "$MAIN/.git/hooks/pre-commit" ] && uv run --active pre-commit install 2>/dev/null || true
+[ ! -f "$MAIN/.git/hooks/pre-commit" ] && uv run --active prek install 2>/dev/null || true
 
 echo "Setup complete"

@@ -6,7 +6,7 @@
 
 ```bash
 bun install --frozen-lockfile
-pre-commit install
+prek install
 ```
 
 ### OpenCodeの設定
