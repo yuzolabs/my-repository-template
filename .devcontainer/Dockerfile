@@ -6,7 +6,10 @@ RUN apt-get update && apt-get install -y \
     git \
     sudo \
     unzip \
-    && rm -rf /var/lib/apt/lists/*
+    fd-find \
+    ripgrep \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -34,4 +37,5 @@ RUN bun add -g opencode-ai
 # USER root
 RUN npm install -g agent-browser
 RUN agent-browser install --with-deps
+RUN npm install -g typescript-language-server typescript
 # USER node
