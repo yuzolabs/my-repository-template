@@ -31,10 +31,12 @@
 	},
 	"remoteEnv": {
 		// ローカルのトークン変数をコンテナ内の環境変数として渡す
-		"GH_TOKEN": "${localEnv:GH_TOKEN}"
+		"GH_TOKEN": "${localEnv:GH_TOKEN}",
+		// uvのハードリンク警告を抑制（Docker環境のファイルシステム差に対応）
+		"UV_LINK_MODE": "copy"
 	},
 	"mounts": [
-		"source=${localEnv:USERPROFILE}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
+		"source=${localEnv:HOME}/.local/share/opencode/auth.json,target=/home/node/.local/share/opencode/auth.json,type=bind,readonly",
 		"source=${localWorkspaceFolder}/../../my-repository-template,target=/workspaces/my-repository-template,type=bind"
 	],
 	"workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,type=bind",
