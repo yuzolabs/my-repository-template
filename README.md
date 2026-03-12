@@ -5,6 +5,13 @@
 このリポジトリを使用する前に、以下のコマンドを実行してください。
 
 ```bash
+REPO_NAME="my-awesome-project"
+sed -i "s/my-repository-template/$REPO_NAME/g" \
+  .devcontainer/devcontainer.json \
+  .devcontainer/post-start.sh \
+  package.json \
+  pyproject.toml \
+
 bun install --frozen-lockfile
 prek install
 ```
