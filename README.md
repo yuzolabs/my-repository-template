@@ -5,6 +5,13 @@
 このリポジトリを使用する前に、以下のコマンドを実行してください。
 
 ```bash
+REPO_NAME="my-awesome-project"
+sed -i "s/my-repository-template/$REPO_NAME/g" \
+  .devcontainer/devcontainer.json \
+  .devcontainer/post-start.sh \
+  package.json \
+  pyproject.toml \
+
 bun install --frozen-lockfile
 prek install
 ```
@@ -34,7 +41,19 @@ Windows は WSL2 上、Mac の場合は通常の環境にて`opencode auth login
 ```txt
 ..
 ├── my-repository-template
-└── my-repository-template.worktree
+└── my-repository-template.worktrees
     ├── feat-branch1
     └── fix-branch2
+```
+
+#### worktrunkを使用する場合
+
+以下の設定を`~/.config/worktrunk`に追加します。
+
+```txt
+worktree-path = "{{ repo_path }}/../{{ repo }}.worktrees/{{ branch | sanitize }}"
+```
+
+```bash
+wt switch --create feat-branch1
 ```
