@@ -46,6 +46,7 @@
 	],
 	// 現在開いているワークスペースを常に /workspace にマウントして利用する
 	"workspaceFolder": "/workspace",
+	"postCreateCommand": "bash /workspace/.devcontainer/check-mounts.sh",
 	"postStartCommand": "bash /workspace/.devcontainer/post-start.sh",
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "node"

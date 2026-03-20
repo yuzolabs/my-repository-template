@@ -6,8 +6,11 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      # opencode認証ファイルのみマウント
+      # opencode関連のファイルマウント
       - ${HOME}/.local/share/opencode/auth.json:/home/node/.local/share/opencode/auth.json:ro
+      - ${HOME}/.config/opencode/oh-my-opencode.json:/home/node/.config/opencode/oh-my-opencode.json
+      - ${HOME}/.config/opencode/opencode.json:/home/node/.config/opencode/opencode.json
+      - ${HOME}/.config/opencode/tui.json:/home/node/.config/opencode/tui.json
       - bun-cache:/home/node/.bun/install/cache
       - uv-cache:/home/node/.cache/uv
       - node-modules-cache:/workspace/node_modules

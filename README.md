@@ -13,17 +13,18 @@ bun install --frozen-lockfile
 prek install
 ```
 
-### 注意: devcontainer.json の手動設定
+## 前提条件
 
-`.devcontainer/devcontainer.json` の `mounts` セクションには、リポジトリ名が含まれたパスが3箇所あります。Dev Container Spec の制限により、これらは自動的に置換できないため、上記の `sed` コマンドで手動置換が必要です。
+### Windowsの場合
 
-置換対象の行:
+Docker Desktop をインストールし、WSL2 が有効化されている必要があります。
 
-- `"source=${localWorkspaceFolder}/../../my-repository-template,target=/workspaces/my-repository-template,..."`
-- `"source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,..."`
-- `"source=${localWorkspaceFolder}/.devcontainer/.gitdir-container,target=/workspaces/my-repository-template/.git/worktrees/..."`
+また、自分の環境と同じ opencode の設定を自動で反映したい場合は、以下のディレクトリにある設定ファイルを WSL2 側にコピーしておく必要があります。
 
-その他のファイル（`docker-compose.yml`, `post-start.sh` など）は、起動時に自動的に `.env` ファイル経由で設定されます。
+- `$HOME/.local/share/opencode/auth.json`
+- `$HOME/.config/opencode/oh-my-opencode.json`
+- `$HOME/.config/opencode/opencode.json`
+- `$HOME/.config/opencode/tui.json`
 
 ### OpenCodeの設定
 
@@ -44,17 +45,17 @@ Windows は WSL2 上、Mac の場合は通常の環境にて`opencode auth login
 Dev Container 起動時には、`initializeCommand` で host 側の Git worktree メタデータを検証し、コンテナ専用の `.git` / `gitdir` オーバーレイファイルを `.devcontainer/` 配下に生成します。
 host 側の実際の `.git` 管理ファイルは書き換えないため、worktree は先に host 側で正しく作成してから VS Code で開いてください。
 
-前提条件:
+具体的には以下の条件を満たしている必要があります。
 
 - host 側で `bash` が利用できること
-- worktree 配置が `../<repo>.worktrees/<branch-name>` であること
+- worktree を `../<repo>.worktrees/<branch-name>` に配置すること
 - worktree 管理ディレクトリ名と workspace ディレクトリ名が一致していること
 
 #### git worktreeについて
 
 このリポジトリは`git worktree`を使用して Dev Container 環境を構築できます。
 
-但し、VSCode 仕様の worktree ディレクトリ構造で作成する必要があります。構造は以下の通りです。
+但し、VSCode 仕様の worktree ディレクトリ構造を作成してください。構造は以下の通りです。
 
 ```txt
 ..
