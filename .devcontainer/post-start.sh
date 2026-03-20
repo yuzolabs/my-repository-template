@@ -45,17 +45,19 @@ if [ -d "$MAIN_REPO_PATH/.git/hooks" ]; then
     sudo chown -R node:node "$MAIN_REPO_PATH/.git/hooks" 2>/dev/null || true
 fi
 
-# pre-commitフックのインストール
+# pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
-    echo "Installing pre-commit hooks..."
-    if git -C "$WORKSPACE_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
-        (
+    echo "Installing pre-commit hooks in background..."
+    (
+        if git -C "$WORKSPACE_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
             cd "$WORKSPACE_ROOT"
-            uv run --active prek install
-        ) 2>/dev/null || echo "pre-commit install skipped"
-    else
-        echo "Skipping pre-commit install: Git not properly configured"
-    fi
+            uv run --active prek install 2>&1 | tee /tmp/prek-install.log
+            echo "pre-commit hooks installed successfully" >> /tmp/prek-install.log
+        else
+            echo "Skipping pre-commit install: Git not properly configured" >> /tmp/prek-install.log
+        fi
+    ) &
+    disown
 else
     echo "pre-commit hook already installed"
 fi
