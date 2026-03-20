@@ -60,10 +60,17 @@ sudo chown -R node:node /home/node/.cache 2>/dev/null || true
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
     echo "Installing pre-commit hooks in background..."
     (
+        # サブシェル内で pipefail を有効にし、パイプラインの失敗を検知する
+        set -e
+        set -o pipefail
         if git -C "$WORKSPACE_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
             cd "$WORKSPACE_ROOT"
-            uv run --active prek install 2>&1 | tee /tmp/prek-install.log
-            echo "pre-commit hooks installed successfully" >> /tmp/prek-install.log
+            if uv run --active prek install 2>&1 | tee /tmp/prek-install.log; then
+                echo "pre-commit hooks installed successfully" >> /tmp/prek-install.log
+            else
+                # uv run が失敗した場合、その旨をログに記録する
+                echo "pre-commit hooks installation failed with exit code $?" >> /tmp/prek-install.log
+            fi
         else
             echo "Skipping pre-commit install: Git not properly configured" >> /tmp/prek-install.log
         fi

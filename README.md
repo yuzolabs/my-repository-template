@@ -5,7 +5,7 @@
 このリポジトリを使用する前に、以下のコマンドを実行してください。
 
 ```bash
-REPO_NAME="my-awesome-project"
+REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
 sed -i "s/my-repository-template/$REPO_NAME/g" \
   .devcontainer/devcontainer.json
 
