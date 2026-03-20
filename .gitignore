@@ -4,3 +4,4 @@ node_modules
 .sisyphus
 .devcontainer/.git-container
 .devcontainer/.gitdir-container
+.devcontainer/.env

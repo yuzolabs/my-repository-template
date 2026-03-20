@@ -3,7 +3,7 @@ set -e
 
 WORKSPACE_ROOT=${WORKSPACE_ROOT:-/workspace}
 WT_NAME=${1:-$(basename "$WORKSPACE_ROOT")}
-MAIN_REPO_PATH=${MAIN_REPO_PATH:-/workspaces/my-repository-template}
+MAIN_REPO_PATH=${MAIN_REPO_PATH}
 
 echo "=== Dev Container Setup Start ==="
 echo "Workspace: $WORKSPACE_ROOT"

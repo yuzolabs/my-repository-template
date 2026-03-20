@@ -7,15 +7,23 @@
 ```bash
 REPO_NAME="my-awesome-project"
 sed -i "s/my-repository-template/$REPO_NAME/g" \
-  .devcontainer/devcontainer.json \
-  .devcontainer/docker-compose.yml \
-  .devcontainer/post-start.sh \
-  package.json \
-  pyproject.toml \
+  .devcontainer/devcontainer.json
 
 bun install --frozen-lockfile
 prek install
 ```
+
+### 注意: devcontainer.json の手動設定
+
+`.devcontainer/devcontainer.json` の `mounts` セクションには、リポジトリ名が含まれたパスが3箇所あります。Dev Container Spec の制限により、これらは自動的に置換できないため、上記の `sed` コマンドで手動置換が必要です。
+
+置換対象の行:
+
+- `"source=${localWorkspaceFolder}/../../my-repository-template,target=/workspaces/my-repository-template,..."`
+- `"source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,..."`
+- `"source=${localWorkspaceFolder}/.devcontainer/.gitdir-container,target=/workspaces/my-repository-template/.git/worktrees/..."`
+
+その他のファイル（`docker-compose.yml`, `post-start.sh` など）は、起動時に自動的に `.env` ファイル経由で設定されます。
 
 ### OpenCodeの設定
 
