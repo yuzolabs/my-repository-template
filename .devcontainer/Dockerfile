@@ -5,29 +5,27 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:24-trixie
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    unzip fd-find ripgrep gh \
+    unzip fd-find ripgrep gh chromium \
     && ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install uv
-ENV UV_INSTALL_DIR=/usr/local/bin
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 # Install bun
 ENV BUN_INSTALL=/home/node/.bun
 RUN mkdir -p /home/node/.bun /home/node/.local/share/opencode \
     && curl -fsSL https://bun.com/install | bash \
     && mkdir -p /home/node/.bun/install/cache /home/node/.bun/bin /home/node/.bun/install/global \
-    && chown -R node:node /home/node /home/node/.bun
-ENV PATH=${BUN_INSTALL}/bin:${PATH}
+    && chown -R node:node /home/node /home/node/.bun \
+    && printf '%s\n' 'export PATH="/home/node/.bun/bin:/usr/local/bin:$PATH"' > /etc/profile.d/devcontainer-path.sh \
+    && chmod 755 /etc/profile.d/devcontainer-path.sh
+ENV PATH=${BUN_INSTALL}/bin:/usr/local/bin:${PATH}
+ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install opencode as node user
 USER node
 RUN --mount=type=cache,id=bun-cache-v2,target=/home/node/.bun/install/cache,uid=1000,gid=1000 \
-    --mount=type=cache,id=bun-global-v2,target=/home/node/.bun/install/global,uid=1000,gid=1000 \
     bun add -g opencode-ai
 
-# Install agent-browser and TypeScript LSP (combined into one RUN)
 RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
-    npm install -g agent-browser \
-    && agent-browser install --with-deps \
-    && npm install -g typescript-language-server typescript
+    npm install -g agent-browser typescript-language-server typescript

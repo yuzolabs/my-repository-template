@@ -50,6 +50,12 @@ if [ -d "/workspace/node_modules" ]; then
     sudo chown -R node:node /workspace/node_modules 2>/dev/null || true
 fi
 
+sudo mkdir -p /home/node/.bun/install/cache 2>/dev/null || true
+sudo chown -R node:node /home/node/.bun/install/cache 2>/dev/null || true
+
+sudo mkdir -p /home/node/.cache/uv 2>/dev/null || true
+sudo chown -R node:node /home/node/.cache 2>/dev/null || true
+
 # pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
     echo "Installing pre-commit hooks in background..."
