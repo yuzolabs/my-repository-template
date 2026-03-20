@@ -1,5 +1,7 @@
 services:
   devcontainer:
+    # To use pre-built image instead of building locally, uncomment 'image' and comment out 'build':
+    # image: ghcr.io/${GITHUB_REPOSITORY}/devcontainer:latest
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
