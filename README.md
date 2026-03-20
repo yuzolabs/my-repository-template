@@ -8,6 +8,7 @@
 REPO_NAME="my-awesome-project"
 sed -i "s/my-repository-template/$REPO_NAME/g" \
   .devcontainer/devcontainer.json \
+  .devcontainer/docker-compose.yml \
   .devcontainer/post-start.sh \
   package.json \
   pyproject.toml \
@@ -32,6 +33,15 @@ Windows は WSL2 上、Mac の場合は通常の環境にて`opencode auth login
 このリポジトリをデフォルトの名前で clone することを想定しています。
 名前を変えると動作しなくなる可能性があります。
 
+Dev Container 起動時には、`initializeCommand` で host 側の Git worktree メタデータを検証し、コンテナ専用の `.git` / `gitdir` オーバーレイファイルを `.devcontainer/` 配下に生成します。
+host 側の実際の `.git` 管理ファイルは書き換えないため、worktree は先に host 側で正しく作成してから VS Code で開いてください。
+
+前提条件:
+
+- host 側で `bash` が利用できること
+- worktree 配置が `../<repo>.worktrees/<branch-name>` であること
+- worktree 管理ディレクトリ名と workspace ディレクトリ名が一致していること
+
 #### git worktreeについて
 
 このリポジトリは`git worktree`を使用して Dev Container 環境を構築できます。
@@ -44,6 +54,14 @@ Windows は WSL2 上、Mac の場合は通常の環境にて`opencode auth login
 └── my-repository-template.worktrees
     ├── feat-branch1
     └── fix-branch2
+```
+
+`fix-branch2/.git` は Git worktree の管理ファイルです。Dev Container ではこの実ファイルを直接書き換えず、コンテナ内だけで使うオーバーレイファイルを mount して current worktree を参照させます。
+
+過去バージョンの設定で `/workspace` を指す壊れた worktree メタデータが残っている場合は、main リポジトリ側で以下を実行して掃除してください。
+
+```bash
+git -C ../my-repository-template worktree prune --expire now
 ```
 
 #### worktrunkを使用する場合
