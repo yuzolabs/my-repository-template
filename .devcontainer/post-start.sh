@@ -2,8 +2,8 @@
 set -e
 
 WORKSPACE_ROOT=${WORKSPACE_ROOT:-/workspace}
-WT_NAME=${1:-$localWorkspaceFolderBasename}
-MAIN_REPO_PATH=${MAIN_REPO_PATH:-/workspaces/my-repository-template}
+WT_NAME=${1:-$(basename "$WORKSPACE_ROOT")}
+MAIN_REPO_PATH=${MAIN_REPO_PATH}
 
 echo "=== Dev Container Setup Start ==="
 echo "Workspace: $WORKSPACE_ROOT"
@@ -20,56 +20,8 @@ fi
 # worktreeの検出（/workspace/.gitファイルが存在するか）
 if [ -f "$WORKSPACE_ROOT/.git" ]; then
     echo "Detected worktree at: $WORKSPACE_ROOT"
-
-    # .gitファイルの内容を確認
     GITDIR_CONTENT=$(cat "$WORKSPACE_ROOT/.git")
-    echo "Original .git content: $GITDIR_CONTENT"
-
-    # worktree名を取得（コンテナ内のディレクトリ名）
-    WT_BASENAME=$(basename "$WORKSPACE_ROOT")
-
-    # Windowsパス（C:：など）が含まれているかチェック
-    NEEDS_FIX=false
-    if echo "$GITDIR_CONTENT" | grep -qE '^gitdir: [A-Za-z]:'; then
-        echo "Windows path detected, fixing..."
-        NEEDS_FIX=true
-    else
-        # Linuxパスの場合でも、指しているworktreeが実際に存在するか確認
-        CURRENT_WT=$(echo "$GITDIR_CONTENT" | sed 's/^gitdir: //' | xargs basename)
-        if [ ! -d "$MAIN_REPO_PATH/.git/worktrees/$CURRENT_WT" ]; then
-            echo "Worktree '$CURRENT_WT' not found, fixing to use existing worktree..."
-            NEEDS_FIX=true
-        fi
-    fi
-
-    if [ "$NEEDS_FIX" = true ]; then
-        # 実際に存在するworktreeを探す
-        EXISTING_WT=$(ls -1 "$MAIN_REPO_PATH/.git/worktrees/" 2>/dev/null | head -1)
-
-        if [ -n "$EXISTING_WT" ]; then
-            # 正しいパスに修正
-            echo "gitdir: $MAIN_REPO_PATH/.git/worktrees/$EXISTING_WT" > "$WORKSPACE_ROOT/.git"
-            echo "Fixed .git content:"
-            cat "$WORKSPACE_ROOT/.git"
-            WT_BASENAME="$EXISTING_WT"
-        else
-            echo "WARNING: No existing worktree found in $MAIN_REPO_PATH/.git/worktrees/"
-        fi
-    fi
-
-    # メインリポジトリ側のgitdirファイルも修正
-    WT_BASENAME=$(cat "$WORKSPACE_ROOT/.git" 2>/dev/null | sed 's/^gitdir: //' | xargs basename 2>/dev/null || echo "")
-    if [ -n "$WT_BASENAME" ]; then
-        GITDIR_FILE="$MAIN_REPO_PATH/.git/worktrees/$WT_BASENAME/gitdir"
-
-        if [ -f "$GITDIR_FILE" ]; then
-            GITDIR_CONTENT=$(cat "$GITDIR_FILE")
-            if echo "$GITDIR_CONTENT" | grep -qE ':\\\\'; then
-                echo "Fixing gitdir file: $GITDIR_FILE"
-                echo "$WORKSPACE_ROOT/.git" > "$GITDIR_FILE"
-            fi
-        fi
-    fi
+    echo "Current .git content: $GITDIR_CONTENT"
 
     # safe.directory設定
     git config --global --add safe.directory "$WORKSPACE_ROOT" 2>/dev/null || true
@@ -83,8 +35,9 @@ echo "Verifying git configuration..."
 if git -C "$WORKSPACE_ROOT" status > /dev/null 2>&1; then
     echo "Git status: OK"
 else
-    echo "WARNING: Git status check failed, attempting repair..."
-    git -C "$MAIN_REPO_PATH" worktree repair "$WORKSPACE_ROOT" 2>/dev/null || true
+    echo "ERROR: Git status check failed. initializeCommand did not produce a valid container worktree mapping." >&2
+    echo "Reopen the Dev Container after running the worktree from the expected ../<repo>.worktrees/<branch> layout." >&2
+    exit 1
 fi
 
 # フックディレクトリの権限設定
@@ -92,14 +45,37 @@ if [ -d "$MAIN_REPO_PATH/.git/hooks" ]; then
     sudo chown -R node:node "$MAIN_REPO_PATH/.git/hooks" 2>/dev/null || true
 fi
 
-# pre-commitフックのインストール
+# node_modulesの権限設定（名前付きボリュームがroot所有になる問題の対策）
+if [ -d "/workspace/node_modules" ]; then
+    sudo chown -R node:node /workspace/node_modules 2>/dev/null || true
+fi
+
+sudo mkdir -p /home/node/.bun/install/cache 2>/dev/null || true
+sudo chown -R node:node /home/node/.bun/install/cache 2>/dev/null || true
+
+sudo mkdir -p /home/node/.cache/uv 2>/dev/null || true
+sudo chown -R node:node /home/node/.cache 2>/dev/null || true
+
+# pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
-    echo "Installing pre-commit hooks..."
-    if git -C "$WORKSPACE_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
-        uv run --active prek install 2>/dev/null || echo "pre-commit install skipped"
-    else
-        echo "Skipping pre-commit install: Git not properly configured"
-    fi
+    echo "Installing pre-commit hooks in background..."
+    (
+        # サブシェル内で pipefail を有効にし、パイプラインの失敗を検知する
+        set -e
+        set -o pipefail
+        if git -C "$WORKSPACE_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
+            cd "$WORKSPACE_ROOT"
+            if uv run --active prek install 2>&1 | tee /tmp/prek-install.log; then
+                echo "pre-commit hooks installed successfully" >> /tmp/prek-install.log
+            else
+                # uv run が失敗した場合、その旨をログに記録する
+                echo "pre-commit hooks installation failed with exit code $?" >> /tmp/prek-install.log
+            fi
+        else
+            echo "Skipping pre-commit install: Git not properly configured" >> /tmp/prek-install.log
+        fi
+    ) &
+    disown
 else
     echo "pre-commit hook already installed"
 fi

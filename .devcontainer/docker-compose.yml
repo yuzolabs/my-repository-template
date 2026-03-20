@@ -1,17 +1,28 @@
-version: '3.8'
-
 services:
   devcontainer:
+    # To use pre-built image instead of building locally, uncomment 'image' and comment out 'build':
+    # image: ghcr.io/${GITHUB_REPOSITORY}/devcontainer:latest
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      # opencode認証ファイルのみマウント
+      # opencode関連のファイルマウント
       - ${HOME}/.local/share/opencode/auth.json:/home/node/.local/share/opencode/auth.json:ro
+      - ${HOME}/.config/opencode/oh-my-opencode.json:/home/node/.config/opencode/oh-my-opencode.json
+      - ${HOME}/.config/opencode/opencode.json:/home/node/.config/opencode/opencode.json
+      - ${HOME}/.config/opencode/tui.json:/home/node/.config/opencode/tui.json
+      - bun-cache:/home/node/.bun/install/cache
+      - uv-cache:/home/node/.cache/uv
+      - node-modules-cache:/workspace/node_modules
     environment:
       - UV_LINK_MODE=copy
       - GH_TOKEN=${GH_TOKEN:-}
       # メインリポジトリとworktreesのパスを環境変数として渡す
-      - MAIN_REPO_PATH=/workspaces/my-repository-template
-      - WORKTREES_PATH=/workspaces/my-repository-template.worktrees
+      - MAIN_REPO_PATH=${MAIN_REPO_PATH:-/workspaces/my-repository-template}
+      - WORKTREES_PATH=${WORKTREES_PATH:-/workspaces/my-repository-template.worktrees}
     command: sleep infinity
+
+volumes:
+  bun-cache:
+  uv-cache:
+  node-modules-cache:
