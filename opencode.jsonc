@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "tokyonight",
   "instructions": [
     "./AGENTS.md"
   ],
@@ -10,19 +9,7 @@
       "*": "allow"
     }
   },
-  "provider": {
-    "github-copilot": {
-      "models": {
-        "gpt-5.2-codex": {
-          "variants": {
-            "xhigh": {
-              "reasoningEffort": "xhigh"
-            }
-          }
-        }
-      }
-    }
-  },
+  "provider": {},
   "mcp": {},
   "plugin": [
     "oh-my-opencode"
