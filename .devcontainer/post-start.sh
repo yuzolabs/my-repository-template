@@ -45,6 +45,11 @@ if [ -d "$MAIN_REPO_PATH/.git/hooks" ]; then
     sudo chown -R node:node "$MAIN_REPO_PATH/.git/hooks" 2>/dev/null || true
 fi
 
+# node_modulesの権限設定（名前付きボリュームがroot所有になる問題の対策）
+if [ -d "/workspace/node_modules" ]; then
+    sudo chown -R node:node /workspace/node_modules 2>/dev/null || true
+fi
+
 # pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
     echo "Installing pre-commit hooks in background..."
