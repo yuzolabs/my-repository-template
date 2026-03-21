@@ -10,6 +10,16 @@ echo "Workspace: $WORKSPACE_ROOT"
 echo "Worktree name: $WT_NAME"
 echo "Main repo: $MAIN_REPO_PATH"
 
+# git configの初期化（ホスト設定をコピーして使用）
+# safe.directory設定より先に実行する必要がある
+HOST_GITCONFIG="/host-config/.gitconfig"
+CONTAINER_GITCONFIG="$HOME/.gitconfig"
+
+if [ -f "$HOST_GITCONFIG" ] && [ ! -f "$CONTAINER_GITCONFIG" ]; then
+    echo "Copying host gitconfig to container..."
+    cp "$HOST_GITCONFIG" "$CONTAINER_GITCONFIG"
+fi
+
 # メインリポジトリが正しくマウントされているか確認
 if [ ! -d "$MAIN_REPO_PATH/.git" ] && [ ! -f "$MAIN_REPO_PATH/.git" ]; then
     echo "ERROR: Main repository not found at $MAIN_REPO_PATH"
