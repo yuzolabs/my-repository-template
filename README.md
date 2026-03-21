@@ -26,9 +26,9 @@ Docker Desktop と WSL2 が必要です。
 - `$HOME/.config/opencode/opencode.json`
 - `$HOME/.config/opencode/tui.json`
 
-### MacOS, Linuxの場合
+### macOS, Linuxの場合
 
-Docker Desktop が必要です。
+Docker（Docker Desktop または Docker Engine）が必要です。
 
 opencode の設定ファイルについては、ホスト側の設定をそのまま使用できます。
 
