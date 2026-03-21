@@ -65,6 +65,8 @@ if errorlevel 1 (
     echo [WARNING] Initialization script failed, but continuing...
 )
 
+call :repair_git_file
+
 call :is_interactive "%COMMAND_TEXT%"
 set "IS_INTERACTIVE=%ERRORLEVEL%"
 
@@ -179,3 +181,21 @@ if /I "%~1"=="zsh" exit /b 0
 if /I "%~1"=="zsh -i" exit /b 0
 if /I "%~1"=="zsh -l" exit /b 0
 exit /b 1
+
+:repair_git_file
+set "GIT_FILE=%WORKSPACE_PATH%\.git"
+if not exist "%GIT_FILE%" exit /b 0
+if exist "%GIT_FILE%\*" exit /b 0
+
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "Get-Content '%GIT_FILE%' -Raw"`) do set "GIT_CONTENT=%%A"
+
+echo !GIT_CONTENT! | findstr /B "gitdir: /mnt/" >nul 2>&1
+if errorlevel 1 exit /b 0
+
+echo [INFO] Repairing .git file ^(converting WSL path to Windows path^)...
+
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "$content = Get-Content '%GIT_FILE%' -Raw; if ($content -match '^gitdir: /mnt/([a-z])/(.*)$') { $drive = $matches[1].ToUpper(); 'gitdir: ' + $drive + ':/' + $matches[2] } else { $content }"`) do set "REPAIRED_CONTENT=%%A"
+
+powershell -NoProfile -Command "Set-Content -Path '%GIT_FILE%' -Value '%REPAIRED_CONTENT%' -NoNewline"
+echo [INFO] .git file repaired: %REPAIRED_CONTENT%
+exit /b 0
