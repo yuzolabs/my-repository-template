@@ -56,6 +56,29 @@ sudo chown -R node:node /home/node/.bun/install/cache 2>/dev/null || true
 sudo mkdir -p /home/node/.cache/uv 2>/dev/null || true
 sudo chown -R node:node /home/node/.cache 2>/dev/null || true
 
+# opencode設定の初期化（ホスト設定をコピーして使用）
+CONTAINER_OPENCODE_CONFIG="/home/node/.config/opencode"
+CONTAINER_OPENCODE_SHARE="/home/node/.local/share/opencode"
+HOST_OPENCODE_CONFIG="/host-config/opencode/config"
+HOST_OPENCODE_SHARE="/host-config/opencode/share"
+
+# コンテナ内にディレクトリを作成
+mkdir -p "$CONTAINER_OPENCODE_CONFIG"
+mkdir -p "$CONTAINER_OPENCODE_SHARE"
+
+# ホストの設定をコンテナにコピー（既にコピー済みでない場合のみ）
+if [ -d "$HOST_OPENCODE_CONFIG" ] && [ ! -f "$CONTAINER_OPENCODE_CONFIG/.copied" ]; then
+    echo "Copying host opencode config to container..."
+    cp -r "$HOST_OPENCODE_CONFIG/"* "$CONTAINER_OPENCODE_CONFIG/" 2>/dev/null || true
+    touch "$CONTAINER_OPENCODE_CONFIG/.copied"
+fi
+
+if [ -d "$HOST_OPENCODE_SHARE" ] && [ ! -f "$CONTAINER_OPENCODE_SHARE/.copied" ]; then
+    echo "Copying host opencode share data to container..."
+    cp -r "$HOST_OPENCODE_SHARE/"* "$CONTAINER_OPENCODE_SHARE/" 2>/dev/null || true
+    touch "$CONTAINER_OPENCODE_SHARE/.copied"
+fi
+
 # pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
     echo "Installing pre-commit hooks in background..."
