@@ -3,7 +3,6 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 set "WORKSPACE_PATH=%CD%"
 set "COMMAND_TEXT=bash"
-set "SKIP_WSL=0"
 
 :parse_args
 if "%~1"=="" goto after_args
@@ -27,11 +26,6 @@ if /I "%~1"=="-Command" (
     shift
     goto parse_args
 )
-if /I "%~1"=="-SkipWSL" (
-    set "SKIP_WSL=1"
-    shift
-    goto parse_args
-)
 
 echo [ERROR] Unknown argument: %~1
 exit /b 1
@@ -40,10 +34,20 @@ exit /b 1
 for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_PATH=%%~fI"
 echo [INFO] Workspace: %WORKSPACE_PATH%
 
-if "%SKIP_WSL%"=="1" goto native_mode
-
 where wsl >nul 2>&1
-if errorlevel 1 goto native_mode
+if errorlevel 1 (
+    echo [ERROR] WSL2 not found. DevContainer requires WSL2.
+    echo [INFO] Please install WSL2 and Docker Desktop.
+    echo [INFO] Alternatively, use VS Code 'Reopen in Container' feature.
+    exit /b 1
+)
+
+wsl --status >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] WSL2 is not properly configured.
+    echo [INFO] Please run 'wsl --install' to set up WSL2.
+    exit /b 1
+)
 
 for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$p=(Resolve-Path '%WORKSPACE_PATH%').Path; $n=$p -replace '\\','/'; if($n -match '^([A-Za-z]):/(.*)$'){ '/mnt/' + $matches[1].ToLower() + '/' + $matches[2] } else { $n }"`) do set "WSL_WORKSPACE_PATH=%%I"
 if not defined WSL_WORKSPACE_PATH (
@@ -76,21 +80,11 @@ if "%IS_INTERACTIVE%"=="0" goto interactive_wsl
 
 type "!RUN_OUTPUT_FILE!"
 if not "!EXEC_EXIT_CODE!"=="0" (
-    echo [ERROR] Command execution failed (exit code: !EXEC_EXIT_CODE!)
+    echo [ERROR] Command execution failed ^(exit code: !EXEC_EXIT_CODE!^)
     del "!RUN_OUTPUT_FILE!" >nul 2>&1
     exit /b !EXEC_EXIT_CODE!
 )
 del "!RUN_OUTPUT_FILE!" >nul 2>&1
-exit /b 0
-
-echo [INFO] Running via WSL2...
-echo Execute: wsl devcontainer exec --workspace-folder "%WSL_WORKSPACE_PATH%" bash -lc "%COMMAND_TEXT%"
-wsl devcontainer exec --workspace-folder "%WSL_WORKSPACE_PATH%" bash -lc "%COMMAND_TEXT%"
-set "EXIT_CODE=%ERRORLEVEL%"
-if not "%EXIT_CODE%"=="0" (
-    echo [ERROR] Command execution failed (exit code: %EXIT_CODE%)
-    exit /b %EXIT_CODE%
-)
 exit /b 0
 
 :interactive_wsl
@@ -99,12 +93,6 @@ echo [INFO] Entering interactive shell. Type 'exit' to return to Command Prompt.
 echo [INFO] Running interactive shell via WSL2...
 echo Execute: wsl devcontainer exec --workspace-folder "%WSL_WORKSPACE_PATH%" bash
 wsl devcontainer exec --workspace-folder "%WSL_WORKSPACE_PATH%" bash
-exit /b %ERRORLEVEL%
-
-:native_mode
-echo [INFO] Running in Windows native mode...
-echo Execute: powershell -ExecutionPolicy Bypass -File "%~dp0devcontainer-exec.ps1" -WorkspacePath "%WORKSPACE_PATH%" -Command "%COMMAND_TEXT%" -SkipWSL
-powershell -ExecutionPolicy Bypass -File "%~dp0devcontainer-exec.ps1" -WorkspacePath "%WORKSPACE_PATH%" -Command "%COMMAND_TEXT%" -SkipWSL
 exit /b %ERRORLEVEL%
 
 :run_wsl_capture
@@ -116,15 +104,40 @@ set "RUN_EXIT_CODE=%ERRORLEVEL%"
 exit /b 0
 
 :start_container
-set "UP_SCRIPT=%~dp0devcontainer-up.ps1"
-if not exist "%UP_SCRIPT%" (
-    echo [ERROR] devcontainer-up.ps1 not found at: %UP_SCRIPT%
+echo [INFO] Starting DevContainer...
+
+wsl bash -c "command -v devcontainer" >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Installing DevContainer CLI in WSL2...
+    wsl bash -c "npm install -g @devcontainers/cli"
+    if errorlevel 1 (
+        echo [ERROR] Failed to install DevContainer CLI
+        exit /b 1
+    )
+)
+
+wsl docker version --format '{{.Server.Version}}' >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Docker is not running. Please start Docker Desktop.
     exit /b 1
 )
 
-echo [INFO] Running devcontainer-up.ps1 to start container...
-powershell -ExecutionPolicy Bypass -File "%UP_SCRIPT%" -WorkspacePath "%WORKSPACE_PATH%"
-exit /b %ERRORLEVEL%
+for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_NAME=%%~nxI"
+echo [INFO] Workspace name: %WORKSPACE_NAME%
+
+set "INIT_SCRIPT=%WSL_WORKSPACE_PATH%/.devcontainer/host-initialize.sh"
+echo [INFO] Initializing Git worktree settings...
+wsl bash -c "if [ -f '%INIT_SCRIPT%' ]; then bash '%INIT_SCRIPT%' '%WSL_WORKSPACE_PATH%' '%WORKSPACE_NAME%' '/workspace'; else echo 'host-initialize.sh not found, skipping initialization'; fi"
+
+echo [INFO] Running devcontainer up...
+echo Execute: wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+if errorlevel 1 (
+    echo [ERROR] Failed to start DevContainer
+    exit /b 1
+)
+echo [INFO] Container started successfully
+exit /b 0
 
 :is_interactive
 if /I "%~1"=="bash" exit /b 0

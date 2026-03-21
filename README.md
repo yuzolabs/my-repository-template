@@ -17,14 +17,20 @@ prek install
 
 ### Windowsの場合
 
-Docker Desktop をインストールし、WSL2 が有効化されている必要があります。
+Docker Desktop と WSL2 が必要です。
 
-また、自分の環境と同じ opencode の設定を自動で反映したい場合は、以下のディレクトリにある設定ファイルを WSL2 側にコピーしておく必要があります。
+自分の環境と同じ opencode の設定を自動で反映したい場合は、以下のディレクトリにある設定ファイルを WSL2 側にコピーしておく必要があります。
 
 - `$HOME/.local/share/opencode/auth.json`
 - `$HOME/.config/opencode/oh-my-opencode.json`
 - `$HOME/.config/opencode/opencode.json`
 - `$HOME/.config/opencode/tui.json`
+
+### MacOS, Linuxの場合
+
+Docker Desktop が必要です。
+
+opencode の設定ファイルについては、ホスト側の設定をそのまま使用できます。
 
 ### OpenCodeの設定
 
@@ -87,16 +93,16 @@ wt switch --create feat-branch1
 
 ### DevContainer CLIの使い方
 
-DevContainer CLI を使用することで、VSCode 経由の Dev Container よりも軽量かつ高速にコンテナの準b二をすることができます。
-Vibe Codingにはこちらがおすすめです。
+DevContainer CLI を使用することで、VSCode 経由の Dev Container よりも軽量かつ高速にコンテナの準備ができます。
+Vibe Coding にはこちらがおすすめです。
 
 #### Windowsの場合
 
 Docker Desktop を起動し、以下のコマンドで Dev Container 環境を作成します。
 コンテナがない場合は自動で作成します。
 
-```powershell
-.\.devcontainer\scripts\devcontainer-exec.ps1
+```batch
+.\.devcontainer\scripts\devcontainer-exec.bat
 ```
 
 #### MacOS, Linuxの場合
