@@ -34,6 +34,9 @@ exit /b 1
 for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_PATH=%%~fI"
 echo [INFO] Workspace: %WORKSPACE_PATH%
 
+for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_NAME=%%~nxI"
+echo [INFO] Workspace name: %WORKSPACE_NAME%
+
 where wsl >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] WSL2 not found. DevContainer requires WSL2.
@@ -53,6 +56,13 @@ for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$p=(Resolve-P
 if not defined WSL_WORKSPACE_PATH (
     echo [ERROR] Failed to convert workspace path for WSL.
     exit /b 1
+)
+
+set "INIT_SCRIPT=%WSL_WORKSPACE_PATH%/.devcontainer/host-initialize.sh"
+echo [INFO] Initializing DevContainer configuration...
+wsl bash -c "if [ -f '%INIT_SCRIPT%' ]; then bash '%INIT_SCRIPT%' '%WSL_WORKSPACE_PATH%' '%WORKSPACE_NAME%' '/workspaces/my-repository-template' '/workspace'; else echo 'host-initialize.sh not found, skipping initialization'; fi"
+if errorlevel 1 (
+    echo [WARNING] Initialization script failed, but continuing...
 )
 
 call :is_interactive "%COMMAND_TEXT%"
@@ -122,16 +132,35 @@ if errorlevel 1 (
     exit /b 1
 )
 
-for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_NAME=%%~nxI"
-echo [INFO] Workspace name: %WORKSPACE_NAME%
-
-set "INIT_SCRIPT=%WSL_WORKSPACE_PATH%/.devcontainer/host-initialize.sh"
-echo [INFO] Initializing Git worktree settings...
-wsl bash -c "if [ -f '%INIT_SCRIPT%' ]; then bash '%INIT_SCRIPT%' '%WSL_WORKSPACE_PATH%' '%WORKSPACE_NAME%' '/workspace'; else echo 'host-initialize.sh not found, skipping initialization'; fi"
+rem GH_TOKENの取得（環境変数優先、未設定ならgh auth tokenを実行）
+echo [INFO] Checking GitHub token...
+set "GH_TOKEN_VALUE="
+if defined GH_TOKEN (
+    set "GH_TOKEN_VALUE=%GH_TOKEN%"
+    echo [INFO] Using GH_TOKEN from environment variable.
+) else (
+    echo [INFO] GH_TOKEN not set. Attempting to retrieve token via 'gh auth token' in WSL2...
+    for /f "usebackq delims=" %%I in (`wsl bash -c "gh auth token 2>/dev/null || echo __GH_TOKEN_NOT_FOUND__"`) do set "GH_TOKEN_RESULT=%%I"
+    if "!GH_TOKEN_RESULT!"=="__GH_TOKEN_NOT_FOUND__" (
+        echo [WARNING] Failed to retrieve token from 'gh auth token'. GitHub CLI may not be authenticated.
+    ) else if "!GH_TOKEN_RESULT!"=="" (
+        echo [WARNING] 'gh auth token' returned empty. GitHub CLI may not be authenticated.
+    ) else (
+        set "GH_TOKEN_VALUE=!GH_TOKEN_RESULT!"
+        echo [INFO] Successfully retrieved token from 'gh auth token'.
+    )
+)
 
 echo [INFO] Running devcontainer up...
-echo Execute: wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
-wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+if defined GH_TOKEN_VALUE (
+    echo Execute: wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%" with GH_TOKEN
+    set "WSLENV=GH_TOKEN/u"
+    set "GH_TOKEN=!GH_TOKEN_VALUE!"
+    wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+) else (
+    echo Execute: wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+    wsl devcontainer up --workspace-folder "%WSL_WORKSPACE_PATH%"
+)
 if errorlevel 1 (
     echo [ERROR] Failed to start DevContainer
     exit /b 1
