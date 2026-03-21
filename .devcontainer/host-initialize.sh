@@ -95,7 +95,7 @@ fi
 
 ENV_FILE="$WORKSPACE_DIR/.devcontainer/.env"
 CONTAINER_WORKTREES_PATH="/workspaces/${REPO_NAME}.worktrees"
-COMPOSE_PROJECT_NAME="${REPO_NAME}-${WORKSPACE_NAME}"
+COMPOSE_PROJECT_NAME="${REPO_NAME,,}-${WORKSPACE_NAME}"
 
 EXPECTED_ENV_CONTENT="MAIN_REPO_PATH=${CONTAINER_MAIN_REPO_PATH}
 WORKTREES_PATH=${CONTAINER_WORKTREES_PATH}
@@ -109,3 +109,40 @@ fi
 if [ "$CURRENT_ENV_CONTENT" != "$EXPECTED_ENV_CONTENT" ]; then
     printf '%s\n' "$EXPECTED_ENV_CONTENT" > "$ENV_FILE"
 fi
+
+convert_wsl_path_to_windows() {
+    local wsl_path="$1"
+    if [[ "$wsl_path" =~ ^/mnt/([a-z])/(.*)$ ]]; then
+        local drive="${BASH_REMATCH[1]}"
+        local rest="${BASH_REMATCH[2]}"
+        echo "${drive^^}:/${rest}"
+    else
+        echo "$wsl_path"
+    fi
+}
+
+repair_host_git_file() {
+    local git_file="$WORKSPACE_DIR/.git"
+
+    if [ ! -f "$git_file" ] || [ -d "$git_file" ]; then
+        return 0
+    fi
+
+    local current_content
+    current_content=$(tr -d '\r' < "$git_file")
+
+    if echo "$current_content" | grep -q "^gitdir: /mnt/"; then
+        echo "[INFO] Repairing host .git file (converting WSL path to Windows path)..."
+
+        local wsl_path
+        wsl_path=$(echo "$current_content" | sed 's/^gitdir: //')
+
+        local windows_path
+        windows_path=$(convert_wsl_path_to_windows "$wsl_path")
+
+        printf 'gitdir: %s\n' "$windows_path" > "$git_file"
+        echo "[INFO] Host .git file repaired: $windows_path"
+    fi
+}
+
+repair_host_git_file
