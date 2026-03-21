@@ -34,6 +34,9 @@ exit /b 1
 for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_PATH=%%~fI"
 echo [INFO] Workspace: %WORKSPACE_PATH%
 
+for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_NAME=%%~nxI"
+echo [INFO] Workspace name: %WORKSPACE_NAME%
+
 where wsl >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] WSL2 not found. DevContainer requires WSL2.
@@ -53,6 +56,13 @@ for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$p=(Resolve-P
 if not defined WSL_WORKSPACE_PATH (
     echo [ERROR] Failed to convert workspace path for WSL.
     exit /b 1
+)
+
+set "INIT_SCRIPT=%WSL_WORKSPACE_PATH%/.devcontainer/host-initialize.sh"
+echo [INFO] Initializing DevContainer configuration...
+wsl bash -c "if [ -f '%INIT_SCRIPT%' ]; then bash '%INIT_SCRIPT%' '%WSL_WORKSPACE_PATH%' '%WORKSPACE_NAME%' '/workspaces/my-repository-template' '/workspace'; else echo 'host-initialize.sh not found, skipping initialization'; fi"
+if errorlevel 1 (
+    echo [WARNING] Initialization script failed, but continuing...
 )
 
 call :is_interactive "%COMMAND_TEXT%"
@@ -121,13 +131,6 @@ if errorlevel 1 (
     echo [ERROR] Docker is not running. Please start Docker Desktop.
     exit /b 1
 )
-
-for %%I in ("%WORKSPACE_PATH%") do set "WORKSPACE_NAME=%%~nxI"
-echo [INFO] Workspace name: %WORKSPACE_NAME%
-
-set "INIT_SCRIPT=%WSL_WORKSPACE_PATH%/.devcontainer/host-initialize.sh"
-echo [INFO] Initializing Git worktree settings...
-wsl bash -c "if [ -f '%INIT_SCRIPT%' ]; then bash '%INIT_SCRIPT%' '%WSL_WORKSPACE_PATH%' '%WORKSPACE_NAME%' '/workspace'; else echo 'host-initialize.sh not found, skipping initialization'; fi"
 
 rem GH_TOKENの取得（環境変数優先、未設定ならgh auth tokenを実行）
 echo [INFO] Checking GitHub token...
