@@ -79,6 +79,15 @@ if [ -d "$HOST_OPENCODE_SHARE" ] && [ ! -f "$CONTAINER_OPENCODE_SHARE/.copied" ]
     touch "$CONTAINER_OPENCODE_SHARE/.copied"
 fi
 
+# git configの初期化（ホスト設定をコピーして使用）
+HOST_GITCONFIG="/host-config/.gitconfig"
+CONTAINER_GITCONFIG="$HOME/.gitconfig"
+
+if [ -f "$HOST_GITCONFIG" ] && [ ! -f "$CONTAINER_GITCONFIG" ]; then
+    echo "Copying host gitconfig to container..."
+    cp "$HOST_GITCONFIG" "$CONTAINER_GITCONFIG"
+fi
+
 # pre-commit hook installation (async - runs in background)
 if [ ! -f "$MAIN_REPO_PATH/.git/hooks/pre-commit" ]; then
     echo "Installing pre-commit hooks in background..."
