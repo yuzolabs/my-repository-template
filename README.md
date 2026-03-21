@@ -84,3 +84,31 @@ worktree-path = "{{ repo_path }}/../{{ repo }}.worktrees/{{ branch | sanitize }}
 ```bash
 wt switch --create feat-branch1
 ```
+
+### DevContainer CLIの使い方
+
+DevContainer CLI を使用することで、VSCode 経由の Dev Container よりも軽量かつ高速にコンテナの準b二をすることができます。
+Vibe Codingにはこちらがおすすめです。
+
+#### Windowsの場合
+
+Docker Desktop を起動し、以下のコマンドで Dev Container 環境を作成します。
+コンテナがない場合は自動で作成します。
+
+```powershell
+.\.devcontainer\scripts\devcontainer-exec.ps1
+```
+
+#### MacOS, Linuxの場合
+
+Docker Desktop を起動し、以下のコマンドで Dev Container 環境を作成します。
+
+```bash
+devcontainer up --workspace-folder .
+```
+
+次にコンテナ内のシェルを開きます。
+
+```bash
+devcontainer exec --workspace-folder . /bin/bash
+```
