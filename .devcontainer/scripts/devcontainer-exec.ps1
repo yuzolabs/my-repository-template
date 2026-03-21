@@ -30,7 +30,7 @@ param(
     [string]$WorkspacePath = $PWD.Path,
 
     [Parameter()]
-    [string]$Command = "bash -i",
+    [string]$Command = "bash",
 
     [Parameter()]
     [switch]$SkipWSL
@@ -43,12 +43,12 @@ function Write-Info {
     Write-Host "[INFO] $Message" -ForegroundColor Cyan
 }
 
-function Write-Warning {
+function Write-Warn {
     param([string]$Message)
     Write-Host "[WARNING] $Message" -ForegroundColor Yellow
 }
 
-function Write-Error {
+function Write-Err {
     param([string]$Message)
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
@@ -56,6 +56,17 @@ function Write-Error {
 function Test-CommandExists {
     param([string]$Command)
     $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
+}
+
+function Get-CommandPath {
+    param([string]$Command)
+
+    $resolved = Get-Command $Command -ErrorAction SilentlyContinue
+    if ($null -eq $resolved) {
+        return $null
+    }
+
+    return $resolved.Source
 }
 
 function Convert-ToWSLPath {
@@ -124,6 +135,52 @@ function Invoke-CapturedCommand {
     }
 }
 
+function Get-WSLPassthroughCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CommandToRun
+    )
+
+    $escapedWorkspace = $wslWorkspacePath -replace "'", "'\''"
+    return "devcontainer exec --workspace-folder '$escapedWorkspace' $CommandToRun"
+}
+
+function Get-ConfigValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Pattern,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Fallback
+    )
+
+    if (-not (Test-Path $Path)) {
+        return $Fallback
+    }
+
+    $content = Get-Content -Raw -Path $Path
+    $match = [regex]::Match($content, $Pattern)
+    if ($match.Success -and $match.Groups.Count -gt 1) {
+        return $match.Groups[1].Value
+    }
+
+    return $Fallback
+}
+
+function Get-NormalizedInteractiveShellCommand {
+    param([string]$CommandText)
+
+    $trimmed = $CommandText.Trim()
+    if ($trimmed -match '^(bash|sh|zsh)(?: -[il])?$') {
+        return $matches[1]
+    }
+
+    return $trimmed
+}
+
 function Invoke-DevContainerExec {
     param(
         [Parameter(Mandatory = $true)]
@@ -160,22 +217,19 @@ function Invoke-DevContainerExecPassthrough {
 
     try {
         if ($useWSL) {
-            Write-Info "Running via WSL2..."
-
-            $escapedWorkspace = $wslWorkspacePath -replace "'", "'\''"
-            $wslCommand = "devcontainer exec --workspace-folder '$escapedWorkspace' $CommandToRun"
-            Write-Host "Execute: wsl bash -c `"$wslCommand`"" -ForegroundColor DarkGray
-
-            wsl bash -c $wslCommand
-            return Get-ExitCode
+            # WSL2経由でユーザー確認済みの直接実行パターンを使う
+            Write-Info "Running interactive shell via WSL2..."
+            $wslExecArgs = @("devcontainer", "exec", "--workspace-folder", $wslWorkspacePath, $CommandToRun)
+            Write-Host "Execute: wsl $($wslExecArgs -join ' ')" -ForegroundColor DarkGray
+            & wsl @wslExecArgs
+        }
+        else {
+            # WSL2がない場合はエラー（Windowsネイティブでは対話的シェルをサポートしない）
+            Write-Err "Interactive shell requires WSL2."
+            Write-Host "Please enable WSL2 or use VS Code 'Reopen in Container' instead." -ForegroundColor Yellow
+            return 1
         }
 
-        Write-Info "Running in Windows native mode..."
-
-        $localExecArgs = @("exec", "--workspace-folder", $workspaceFullPath, $CommandToRun)
-        Write-Host "Execute: devcontainer $($localExecArgs -join ' ')" -ForegroundColor DarkGray
-
-        & devcontainer @localExecArgs
         return Get-ExitCode
     }
     finally {
@@ -210,10 +264,11 @@ function Test-InteractiveShellCommand {
     param([string]$CommandText)
 
     $trimmed = $CommandText.Trim()
-    return $trimmed -match '^(bash|bash -i|sh|sh -i|zsh|zsh -i)$'
+    return $trimmed -match '^(bash|sh|zsh)( -[il])?$'
 }
 
 $isInteractiveShellCommand = Test-InteractiveShellCommand -CommandText $Command
+$interactiveCommand = if ($isInteractiveShellCommand) { Get-NormalizedInteractiveShellCommand -CommandText $Command } else { $Command }
 $initialCommand = if ($isInteractiveShellCommand) { "true" } else { $Command }
 
 $result = Invoke-DevContainerExec -CommandToRun $initialCommand
@@ -228,11 +283,11 @@ $isContainerUnavailable = $hasError -and (
 )
 
 if ($isContainerUnavailable) {
-    Write-Warning "Dev container is unavailable. Starting container..."
+    Write-Warn "Dev container is unavailable. Starting container..."
 
     $upScriptPath = Join-Path $PSScriptRoot "devcontainer-up.ps1"
     if (-not (Test-Path $upScriptPath)) {
-        Write-Error "devcontainer-up.ps1 not found at: $upScriptPath"
+        Write-Err "devcontainer-up.ps1 not found at: $upScriptPath"
         exit 1
     }
 
@@ -247,7 +302,7 @@ if ($isContainerUnavailable) {
     $upExitCode = $upResult.ExitCode
 
     if ($upExitCode -ne 0) {
-        Write-Error "Failed to start container (exit code: $upExitCode)"
+        Write-Err "Failed to start container (exit code: $upExitCode)"
         exit $upExitCode
     }
 
@@ -257,12 +312,12 @@ if ($isContainerUnavailable) {
     Write-CommandOutput -Lines $retryResult.Output
 
     if ($retryResult.ExitCode -ne 0) {
-        Write-Error "Command execution failed after retry (exit code: $($retryResult.ExitCode))"
+        Write-Err "Command execution failed after retry (exit code: $($retryResult.ExitCode))"
         exit $retryResult.ExitCode
     }
 
     if ($isInteractiveShellCommand) {
-        $interactiveExitCode = Invoke-DevContainerExecPassthrough -CommandToRun $Command
+        $interactiveExitCode = Invoke-DevContainerExecPassthrough -CommandToRun $interactiveCommand
         exit $interactiveExitCode
     }
 
@@ -271,13 +326,13 @@ if ($isContainerUnavailable) {
 
 if ($isInteractiveShellCommand -and -not $hasError) {
     Write-Info "Entering interactive shell. Type 'exit' to return to PowerShell."
-    $interactiveExitCode = Invoke-DevContainerExecPassthrough -CommandToRun $Command
+    $interactiveExitCode = Invoke-DevContainerExecPassthrough -CommandToRun $interactiveCommand
     exit $interactiveExitCode
 }
 
 Write-CommandOutput -Lines $result.Output
 
 if ($hasError) {
-    Write-Error "Command execution failed (exit code: $($result.ExitCode))"
+    Write-Err "Command execution failed (exit code: $($result.ExitCode))"
     exit $result.ExitCode
 }

@@ -58,12 +58,12 @@ function Write-Success {
     Write-Host "[SUCCESS] $Message" -ForegroundColor Green
 }
 
-function Write-Warning {
+function Write-Warn {
     param([string]$Message)
     Write-Host "[WARNING] $Message" -ForegroundColor Yellow
 }
 
-function Write-Error {
+function Write-Err {
     param([string]$Message)
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
@@ -137,7 +137,7 @@ Write-Info "Checking prerequisites..."
 $useWSL = !$SkipWSL
 if ($useWSL) {
     if (-not (Test-CommandExists "wsl")) {
-        Write-Warning "WSL2 not found. Running in Windows native mode."
+        Write-Warn "WSL2 not found. Running in Windows native mode."
         $useWSL = $false
     }
     else {
@@ -146,13 +146,13 @@ if ($useWSL) {
         if ($wslVersionMatch -and $wslVersionMatch.Matches.Groups.Count -gt 1) {
             $wslDefaultVersion = $wslVersionMatch.Matches.Groups[1].Value
             if ($wslDefaultVersion -ne "2") {
-                Write-Warning "WSL default version is not 2 (current: $wslDefaultVersion)"
+                Write-Warn "WSL default version is not 2 (current: $wslDefaultVersion)"
             }
         }
 
         $wslList = wsl -l -v 2>&1
         if ($wslList -notmatch "docker-desktop") {
-            Write-Warning "Docker Desktop WSL2 distro not found"
+            Write-Warn "Docker Desktop WSL2 distro not found"
         }
     }
 }
