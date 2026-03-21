@@ -77,11 +77,15 @@ run_capture() {
   RUN_OUTPUT_FILE=$(mktemp)
   echo "[INFO] Running devcontainer exec..."
   echo "Execute: devcontainer exec --workspace-folder \"$WORKSPACE_PATH\" bash -lc \"$cmd\""
-  if devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash -lc "$cmd" >"$RUN_OUTPUT_FILE" 2>&1; then
-    RUN_EXIT_CODE=0
+  # Temporarily disable exit on error to capture exit code
+  set +e
+  if [[ -n "${GH_TOKEN_VALUE:-}" ]]; then
+    GH_TOKEN="$GH_TOKEN_VALUE" devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash -lc "$cmd" >"$RUN_OUTPUT_FILE" 2>&1
   else
-    RUN_EXIT_CODE=$?
+    devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash -lc "$cmd" >"$RUN_OUTPUT_FILE" 2>&1
   fi
+  RUN_EXIT_CODE=$?
+  set -e
 }
 
 # Start container
@@ -103,14 +107,16 @@ start_container() {
     exit 1
   fi
 
-  # Get GitHub token
+  # Get GitHub token (logs only status, never the token value)
   echo "[INFO] Checking GitHub token..."
   GH_TOKEN_VALUE=""
+  GH_TOKEN_SOURCE=""
   if [[ -n "${GH_TOKEN:-}" ]]; then
     GH_TOKEN_VALUE="$GH_TOKEN"
-    echo "[INFO] Using GH_TOKEN from environment variable."
+    GH_TOKEN_SOURCE="environment"
+    echo "[INFO] GH_TOKEN found in environment variables."
   else
-    echo "[INFO] GH_TOKEN not set. Attempting to retrieve token via 'gh auth token'..."
+    echo "[INFO] Attempting to retrieve token via 'gh auth token'..."
     GH_TOKEN_RESULT=$(gh auth token 2>/dev/null || echo "__GH_TOKEN_NOT_FOUND__")
     if [[ "$GH_TOKEN_RESULT" == "__GH_TOKEN_NOT_FOUND__" ]]; then
       echo "[WARNING] Failed to retrieve token from 'gh auth token'. GitHub CLI may not be authenticated."
@@ -118,13 +124,25 @@ start_container() {
       echo "[WARNING] 'gh auth token' returned empty. GitHub CLI may not be authenticated."
     else
       GH_TOKEN_VALUE="$GH_TOKEN_RESULT"
-      echo "[INFO] Successfully retrieved token from 'gh auth token'."
+      GH_TOKEN_SOURCE="gh_cli"
+      echo "[INFO] Successfully retrieved token from GitHub CLI."
     fi
+  fi
+
+  # Log token presence without exposing the value
+  if [[ -n "$GH_TOKEN_VALUE" ]]; then
+    # Show only first 3 chars, mask the rest (e.g., ghp********)
+    TOKEN_PREFIX="${GH_TOKEN_VALUE:0:3}"
+    TOKEN_MASK="${TOKEN_PREFIX}********"
+    echo "[INFO] GH_TOKEN is set (${GH_TOKEN_SOURCE}, masked: ${TOKEN_MASK})"
+  else
+    echo "[INFO] GH_TOKEN is not set. Continuing without authentication."
   fi
 
   echo "[INFO] Running devcontainer up..."
   if [[ -n "$GH_TOKEN_VALUE" ]]; then
-    echo "Execute: devcontainer up --workspace-folder \"$WORKSPACE_PATH\" with GH_TOKEN"
+    # Log command without exposing GH_TOKEN value
+    echo "Execute: devcontainer up --workspace-folder \"$WORKSPACE_PATH\" (with GH_TOKEN from ${GH_TOKEN_SOURCE})"
     GH_TOKEN="$GH_TOKEN_VALUE" devcontainer up --workspace-folder "$WORKSPACE_PATH"
   else
     echo "Execute: devcontainer up --workspace-folder \"$WORKSPACE_PATH\""
@@ -167,8 +185,13 @@ if is_interactive "$COMMAND_TEXT"; then
   echo "[INFO] Entering interactive shell. Type 'exit' to return."
   echo "[INFO] Running interactive shell..."
   echo "Execute: devcontainer exec --workspace-folder \"$WORKSPACE_PATH\" bash"
-  devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash
-  exit $?
+  EXIT_CODE=0
+  if [[ -n "${GH_TOKEN_VALUE:-}" ]]; then
+    GH_TOKEN="$GH_TOKEN_VALUE" devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash || EXIT_CODE=$?
+  else
+    devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash || EXIT_CODE=$?
+  fi
+  exit $EXIT_CODE
 fi
 
 # Output result and exit
