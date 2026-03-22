@@ -10,11 +10,14 @@ services:
       - bun-cache:/home/node/.bun/install/cache
       - uv-cache:/home/node/.cache/uv
       - node-modules-cache:/workspace/node_modules
+    ports:
+      - "${DEV_PORT:-31000}:3000"
     environment:
       - UV_LINK_MODE=copy
       # メインリポジトリとworktreesのパスを環境変数として渡す
       - MAIN_REPO_PATH=${MAIN_REPO_PATH:-/workspaces/my-repository-template}
       - WORKTREES_PATH=${WORKTREES_PATH:-/workspaces/my-repository-template.worktrees}
+      - DEV_PORT=${DEV_PORT:-31000}
     command: sleep infinity
 
 volumes:
