@@ -192,6 +192,9 @@ start_container() {
   fi
 
   echo "[INFO] Container started successfully"
+
+  echo "[INFO] Running auto-setup in container..."
+  devcontainer exec --workspace-folder "$WORKSPACE_PATH" bash /workspace/.devcontainer/auto-setup.sh || echo "[WARNING] Auto-setup failed, but continuing..."
 }
 
 # Main execution

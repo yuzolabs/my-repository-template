@@ -168,6 +168,13 @@ if errorlevel 1 (
     exit /b 1
 )
 echo [INFO] Container started successfully
+
+echo [INFO] Running auto-setup in container...
+wsl devcontainer exec --workspace-folder "%WSL_WORKSPACE_PATH%" bash /workspace/.devcontainer/auto-setup.sh >nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] Auto-setup failed, but continuing...
+)
+
 exit /b 0
 
 :is_interactive
