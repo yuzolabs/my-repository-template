@@ -31,6 +31,8 @@ fi
 # uv sync
 echo "→ Setting up Python environment (uv sync)..."
 cd /workspace
+# Fix ownership of .venv volume (created as root by Docker)
+sudo chown -R node:node /workspace/.venv 2>/dev/null || true
 uv sync
 echo "✓ uv sync completed"
 
