@@ -10,6 +10,7 @@ services:
       - bun-cache:/home/node/.bun/install/cache
       - uv-cache:/home/node/.cache/uv
       - node-modules-cache:/workspace/node_modules
+      - venv-cache:/workspace/.venv
     environment:
       - UV_LINK_MODE=copy
       # メインリポジトリとworktreesのパスを環境変数として渡す
@@ -21,3 +22,4 @@ volumes:
   bun-cache:
   uv-cache:
   node-modules-cache:
+  venv-cache:
