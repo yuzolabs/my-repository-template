@@ -32,12 +32,16 @@ if [ -d /home/node/.cache/uv ]; then
     sudo chown -R node:node /home/node/.cache/uv 2>/dev/null || true
 fi
 
-# uv sync
-echo "→ Setting up Python environment (uv sync)..."
-cd /workspace
-# Fix ownership of .venv volume (created as root by Docker)
-sudo chown -R node:node /workspace/.venv 2>/dev/null || true
-uv sync --exclude-newer "$EXCLUDE_NEWER_UTC"
-echo "✓ uv sync completed"
+# uv sync（冪等性チェック：/workspace/.venv に有効な仮想環境があればスキップ）
+if [ -f /workspace/.venv/pyvenv.cfg ]; then
+    echo "✓ Python virtual environment already exists at /workspace/.venv, skipping uv sync"
+else
+    echo "→ Setting up Python environment (uv sync)..."
+    cd /workspace
+    # Fix ownership of .venv volume (created as root by Docker)
+    sudo chown -R node:node /workspace/.venv 2>/dev/null || true
+    uv sync --exclude-newer "$EXCLUDE_NEWER_UTC"
+    echo "✓ uv sync completed"
+fi
 
 echo "=== Auto Setup Complete ==="
