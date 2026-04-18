@@ -7,10 +7,23 @@ services:
       dockerfile: .devcontainer/Dockerfile
     volumes:
       # opencode関連のマウントは devcontainer.json で定義（クロスプラットフォーム対応）
-      - bun-cache:/home/node/.bun/install/cache
-      - uv-cache:/home/node/.cache/uv
-      - node-modules-cache:/workspace/node_modules
-      - venv-cache:/workspace/.venv
+      - type: volume
+        source: bun-cache
+        target: /home/node/.bun/install/cache
+      - type: volume
+        source: uv-cache
+        target: /home/node/.cache/uv
+      - type: volume
+        source: node-modules-cache
+        target: /workspace/node_modules
+        # node_modules、.venvはホストとコンテナで共有せず、コンテナ内だけで管理するためnocopyオプションを指定
+        volume:
+          nocopy: true
+      - type: volume
+        source: venv-cache
+        target: /workspace/.venv
+        volume:
+          nocopy: true
     environment:
       - UV_LINK_MODE=copy
       # メインリポジトリとworktreesのパスを環境変数として渡す
