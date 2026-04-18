@@ -1,0 +1,4 @@
+services:
+  devcontainer:
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
