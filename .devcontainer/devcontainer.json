@@ -3,9 +3,9 @@
 {
 	"name": "my-repository-template",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"dockerComposeFile": "docker-compose.yml",
+	"dockerComposeFile": ["docker-compose.yml", "docker-compose.override.yml"],
 	"service": "devcontainer",
-	"initializeCommand": "bash \"${localWorkspaceFolder}/.devcontainer/host-initialize.sh\" \"${localWorkspaceFolder}\" \"${localWorkspaceFolderBasename}\" \"/workspaces/my-repository-template\" \"/workspace\"",
+	"initializeCommand": "bash -lc './.devcontainer/host-initialize.sh \"$(pwd)\" \"${localWorkspaceFolderBasename}\" \"/workspaces/my-repository-template\" \"/workspace\"'",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
@@ -34,6 +34,43 @@
 		// uvのハードリンク警告を抑制（Docker環境のファイルシステム差に対応）
 		"UV_LINK_MODE": "copy"
 	},
+	"forwardPorts": [3000, 4173, 5173, 6006, 8000, 8080],
+	"portsAttributes": {
+		"3000": {
+			"label": "App",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"4173": {
+			"label": "Preview",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"5173": {
+			"label": "Vite",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"6006": {
+			"label": "Storybook",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"8000": {
+			"label": "API",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"8080": {
+			"label": "Web",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		}
+	},
+	"otherPortsAttributes": {
+		"requireLocalPort": false,
+		"onAutoForward": "notify"
+	},
 	"mounts": [
 		// 現在開いているworktreeを /workspace にマウント
 		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
@@ -52,7 +89,7 @@
 	// 現在開いているワークスペースを常に /workspace にマウントして利用する
 	"workspaceFolder": "/workspace",
 	"postCreateCommand": "bash /workspace/.devcontainer/check-mounts.sh",
-	"postStartCommand": "bash /workspace/.devcontainer/post-start.sh",
+	"postStartCommand": "bash /workspace/.devcontainer/auto-setup.sh && bash /workspace/.devcontainer/post-start.sh",
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "node"
 }

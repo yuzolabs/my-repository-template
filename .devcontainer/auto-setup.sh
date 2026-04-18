@@ -4,8 +4,12 @@
 
 set -e
 
+MINIMUM_RELEASE_AGE_SECONDS=$((3 * 24 * 60 * 60))
+EXCLUDE_NEWER_UTC=$(date -u -d '3 days ago' +%Y-%m-%dT%H:%M:%SZ)
+
 echo "=== DevContainer Auto Setup ==="
 echo "Workspace: /workspace"
+echo "Supply chain guard: bun minimumReleaseAge=${MINIMUM_RELEASE_AGE_SECONDS}s, uv exclude-newer=${EXCLUDE_NEWER_UTC}"
 
 # bun install（冪等性チェック：node_modules が空なら実行）
 if [ -d /workspace/node_modules ] && [ -n "$(ls -A /workspace/node_modules 2>/dev/null)" ]; then
@@ -16,9 +20,9 @@ else
     # Fix ownership of node_modules volume (created as root by Docker)
     sudo chown -R node:node /workspace/node_modules 2>/dev/null || true
     if [ -f bun.lock ] || [ -f bun.lockb ]; then
-        bun install --frozen-lockfile
+        bun install --frozen-lockfile --minimum-release-age "$MINIMUM_RELEASE_AGE_SECONDS"
     else
-        bun install
+        bun install --minimum-release-age "$MINIMUM_RELEASE_AGE_SECONDS"
     fi
     echo "✓ bun install completed"
 fi
@@ -28,12 +32,16 @@ if [ -d /home/node/.cache/uv ]; then
     sudo chown -R node:node /home/node/.cache/uv 2>/dev/null || true
 fi
 
-# uv sync
-echo "→ Setting up Python environment (uv sync)..."
-cd /workspace
-# Fix ownership of .venv volume (created as root by Docker)
-sudo chown -R node:node /workspace/.venv 2>/dev/null || true
-uv sync
-echo "✓ uv sync completed"
+# uv sync（冪等性チェック：/workspace/.venv に有効な仮想環境があればスキップ）
+if [ -f /workspace/.venv/pyvenv.cfg ]; then
+    echo "✓ Python virtual environment already exists at /workspace/.venv, skipping uv sync"
+else
+    echo "→ Setting up Python environment (uv sync)..."
+    cd /workspace
+    # Fix ownership of .venv volume (created as root by Docker)
+    sudo chown -R node:node /workspace/.venv 2>/dev/null || true
+    uv sync --exclude-newer "$EXCLUDE_NEWER_UTC"
+    echo "✓ uv sync completed"
+fi
 
 echo "=== Auto Setup Complete ==="

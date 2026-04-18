@@ -60,6 +60,11 @@ if [ -d "/workspace/node_modules" ]; then
     sudo chown -R node:node /workspace/node_modules 2>/dev/null || true
 fi
 
+# .venvの権限設定（名前付きボリュームがroot所有になる問題の対策）
+if [ -d "/workspace/.venv" ]; then
+    sudo chown -R node:node /workspace/.venv 2>/dev/null || true
+fi
+
 sudo mkdir -p /home/node/.bun/install/cache 2>/dev/null || true
 sudo chown -R node:node /home/node/.bun/install/cache 2>/dev/null || true
 
