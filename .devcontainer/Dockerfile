@@ -25,7 +25,7 @@ ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
 # Install opencode as node user
 USER node
 RUN --mount=type=cache,id=bun-cache-v2,target=/home/node/.bun/install/cache,uid=1000,gid=1000 \
-    bun add -g opencode-ai
+    bun add --minimum-release-age 259200 -g opencode-ai oh-my-openagent
 
 RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
     npm install -g agent-browser typescript-language-server typescript
