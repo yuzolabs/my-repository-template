@@ -9,3 +9,6 @@ dependencies = []
 dev = [
     "prek>=0.3.1",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"
