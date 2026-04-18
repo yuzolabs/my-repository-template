@@ -34,17 +34,14 @@
 
 ## VS Codeでの開き方
 
-### メインリポジトリを開く
-
-1. VS Code でクローンしたディレクトリ（`my-app`）を開きます。
-2. 右下に「Reopen in Container」というポップアップが表示されたらクリックします。
-3. 表示されない場合は、コマンドパレット（`Ctrl+Shift+P` / `Cmd+Shift+P`）を開き、「Dev Containers: Reopen in Container」を選択します。
-
 ### worktree ブランチを開く
 
 1. 後述の「git worktree を使った並列開発の手順」に従い、worktree を作成します。
 2. 作成したディレクトリ（例: `../my-app.worktrees/feat-login`）を VS Code で開きます。
 3. メインリポジトリと同様に「Reopen in Container」を実行します。
+
+> [!WARNING]
+> このリポジトリにおけるDev Containerは、git worktree を前提として構成されています。そのため、main ブランチで起動しても Dev Container を起動することは出来ません。
 
 ## アプリの起動とポートアクセス
 
@@ -153,18 +150,30 @@ host 側の実際の `.git` 管理ファイルは書き換えないため、work
 
 `git worktree` で複数の Dev Container を並列起動した場合でも、競合するのはホスト側のポート番号だけです。各コンテナ内では同じ `5173` や `3000` をそのまま使い、ホスト側では空いているポートへ転送することで衝突を避けます。このテンプレートでは `requireLocalPort: false` を前提にしているため、同じローカルポートを確保できない場合でも別ポートへ退避できます。
 
-そのため、通常の開発ではアプリをコンテナ内で `0.0.0.0` に bind して起動し、VS Code の Ports ビューまたは自動転送されたローカル URL からアクセスしてください。テンプレート既定では Docker の host 公開は行いません。
+そのため、通常の開発ではアプリをコンテナ内で `0.0.0.0` に bind して起動し、VS Code の Ports ビューまたは自動転送されたローカル URL からアクセスしてください。
+
+現在のテンプレートには `.devcontainer/docker-compose.override.yml` が同梱されており、コンテナ内の `8000` はホスト側へ固定公開されます。VS Code の自動ポート転送に加えて、必要に応じて Docker の host 公開も使える状態です。
 
 固定のホストポートが必要なプロダクトだけ、`.devcontainer/docker-compose.override.yml` などで `ports` を追加してください。既定の `docker-compose.yml` に固定公開を入れないのは、Vite の `5173` のような共通ポートが worktree 間で衝突しやすいためです。
+
+このテンプレートの `docker-compose.override.yml` では、コンテナ内の `8000` をホスト側へ公開するために `API_HOST_PORT` を使えます。初回起動時にホスト環境変数 `API_HOST_PORT` が未設定なら、`host-initialize.sh` が sibling worktree の `.devcontainer/.env` を見て `8000` から順に空いている値を自動で選び、現在の worktree の `.devcontainer/.env` に保存します。以後の再起動では、その保存済みの値を優先しますが、sibling worktree と衝突する場合は別の空きポートへ再割当されます。
 
 ```yaml
 services:
   devcontainer:
     ports:
-      - "127.0.0.1:${APP_HOST_PORT:-43000}:5173"
+      - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
 ```
 
-この方式を使う場合は、`APP_HOST_PORT` を worktree ごとに重複しない値へ設定してください。`COMPOSE_PROJECT_NAME` はコンテナ名やネットワーク名の衝突を避けますが、ホストポートの衝突までは解決しません。
+例えば `feat-login` worktree を初めて起動するとき、既に別の worktree が `8000` を使っていれば自動的に `8001` 以降が割り当てられます。任意のポートへ固定したい場合だけ、Dev Container を起動する前にホスト側で `API_HOST_PORT` を設定します。
+
+```bash
+export API_HOST_PORT=8001
+```
+
+その状態で Dev Container を再作成すると、ホスト側では `http://127.0.0.1:8001` でアクセスできます。Windows で `.devcontainer/scripts/devcontainer-exec.bat` を使う場合は、PowerShell なら `$env:API_HOST_PORT='8001'`、コマンドプロンプトなら `set API_HOST_PORT=8001` を設定した同じシェルから実行してください。VS Code を GUI から直接開く場合は、その VS Code プロセスが `API_HOST_PORT` を見える状態で起動している必要があります。
+
+通常は自動割当で衝突を避けますが、複数 worktree をほぼ同時に初回起動すると同じ空きポートを見てしまう可能性は残ります。`COMPOSE_PROJECT_NAME` はコンテナ名やネットワーク名の衝突を避けますが、ホストポートの衝突までは解決しません。確実に固定したい worktree では `API_HOST_PORT` を明示設定してください。
 
 #### git worktreeについて
 
