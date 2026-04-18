@@ -34,6 +34,43 @@
 		// uvのハードリンク警告を抑制（Docker環境のファイルシステム差に対応）
 		"UV_LINK_MODE": "copy"
 	},
+	"forwardPorts": [3000, 4173, 5173, 6006, 8000, 8080],
+	"portsAttributes": {
+		"3000": {
+			"label": "App",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"4173": {
+			"label": "Preview",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"5173": {
+			"label": "Vite",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"6006": {
+			"label": "Storybook",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"8000": {
+			"label": "API",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		},
+		"8080": {
+			"label": "Web",
+			"requireLocalPort": false,
+			"onAutoForward": "notify"
+		}
+	},
+	"otherPortsAttributes": {
+		"requireLocalPort": false,
+		"onAutoForward": "notify"
+	},
 	"mounts": [
 		// 現在開いているworktreeを /workspace にマウント
 		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
