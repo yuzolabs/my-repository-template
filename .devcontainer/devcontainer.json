@@ -5,7 +5,7 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"dockerComposeFile": ["docker-compose.yml", "docker-compose.override.yml"],
 	"service": "devcontainer",
-	"initializeCommand": "bash -lc './.devcontainer/host-initialize.sh \"$(pwd)\" \"${localWorkspaceFolderBasename}\" \"/workspaces/my-repository-template\" \"/workspace\"'",
+	"initializeCommand": "bash \"${localWorkspaceFolder}/.devcontainer/host-initialize.sh\" \"${localWorkspaceFolder}\" \"${localWorkspaceFolderBasename}\" \"/workspaces/my-repository-template\" \"/workspace\"",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
