@@ -107,7 +107,8 @@ def fetch_reviews(owner: str, repo: str, pr_number: int, use_gh_cli: bool, token
 
         req = urllib.request.Request(url, headers=headers)
         try:
-            with urllib.request.urlopen(req) as response:
+            # URLは https://api.github.com/ でハードコード。owner/repo/pr_numberはパスにのみ展開されスキームは操作不可のため file:// 注入のリスクなし
+            with urllib.request.urlopen(req) as response:  # nosemgrep
                 data = json.loads(response.read().decode("utf-8"))
                 return data
         except urllib.error.HTTPError as e:
@@ -183,7 +184,8 @@ def fetch_review_comments(
 
         req = urllib.request.Request(url, headers=headers)
         try:
-            with urllib.request.urlopen(req) as response:
+            # URLは https://api.github.com/ でハードコード。owner/repo/pr_numberはパスにのみ展開されスキームは操作不可のため file:// 注入のリスクなし
+            with urllib.request.urlopen(req) as response:  # nosemgrep
                 return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             return []

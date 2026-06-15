@@ -100,6 +100,18 @@ git worktree add ../my-app.worktrees/feat-login -b feat-login
 
 これにより、両方のコンテナ内で `bun run dev` を実行したまま、ブラウザでそれぞれの動作を並行して確認できます。
 
+## セキュリティスキャン
+
+危険なコードやシークレット漏洩が紛れ込むリスクを機械的に検出するため、[Semgrep](https://semgrep.dev/)（SAST）、[gitleaks](https://github.com/gitleaks/gitleaks)（シークレットスキャン）、[zizmor](https://github.com/zizmorcore/zizmor)（GitHub Actions 静的解析）を導入しています。
+
+- **Semgrep**（コードの静的解析 / SAST）: `subprocess.call(cmd, shell=True)`、SQL インジェクションになりうる文字列結合などの危険な実装パターンを検出
+- **gitleaks**（シークレットスキャン）: AWS キー、Slack トークン、Stripe の secret key などのハードコードを検出
+- **zizmor**（GitHub Actions の静的解析）: `pull_request_target` による Pwn Request、キャッシュ汚染、`permissions` の過剰付与、テンプレートインジェクションといったワークフロー固有のサプライチェーンリスクを検出
+
+> [!NOTE]
+> Semgrepは`--config auto`でリポジトリの言語構成に合わせてコミュニティルールを自動選択します。gitleaksの誤検知が出た場合は `.gitleaks.toml` の `allowlist` に追記して運用してください。
+> zizmorは`--persona pedantic`で厳しめの慣習・スタイル指摘まで出力します。必要に応じて変更してください。
+
 ## 前提条件
 
 ### Windowsの場合

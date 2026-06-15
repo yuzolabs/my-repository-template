@@ -2,6 +2,10 @@ version = 1
 revision = 3
 requires-python = ">=3.12"
 
+[options]
+exclude-newer = "2026-06-12T14:47:34.294612Z"
+exclude-newer-span = "P3D"
+
 [[package]]
 name = "my-repository-template"
 version = "0.1.0"
