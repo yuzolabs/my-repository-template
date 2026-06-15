@@ -28,7 +28,7 @@ jobs:
 
   semgrep:
     name: semgrep
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     if: github.actor != 'dependabot[bot]'
