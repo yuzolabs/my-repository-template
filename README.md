@@ -129,6 +129,8 @@ Docker Desktop と WSL2 が必要です。
 
 Docker（Docker Desktop または Docker Engine）が必要です。
 
+macOS (Apple silicon, macOS 26 以降) の場合は、Docker の代わりに [Apple Container](https://github.com/apple/container) を使うこともできます。詳しくは「[Apple Container の使い方 (macOS)](#apple-container-の使い方-macos)」を参照してください。
+
 opencode の設定ファイルについては、ホスト側の設定をそのまま使用できます。
 
 ### OpenCodeの設定
@@ -242,3 +244,85 @@ Docker Desktop を起動し、以下のコマンドで Dev Container 環境を�
 ```bash
 .devcontainer/scripts/devcontainer-exec.sh
 ```
+
+## Apple Container の使い方 (macOS)
+
+macOS (Apple silicon, macOS 26 以降) では、Docker の代わりに [Apple Container](https://github.com/apple/container) を使って Dev Container と同等の開発環境を構築できます。イメージは同じ `.devcontainer/Dockerfile` からビルドされ、マウント構成とセットアップスクリプト（`host-initialize.sh` / `auto-setup.sh` / `post-start.sh` / `check-mounts.sh`）も共有されます。
+
+### 事前準備
+
+1. [GitHub Releases](https://github.com/apple/container/releases) から署名済みインストーラ（pkg）をダウンロードしてインストールします。
+2. コンテナサービスを起動します。
+
+   ```bash
+   container system start
+   ```
+
+### 使い方
+
+git worktree 内で以下を実行します（worktree を前提とする点は Dev Container と同じです）。
+
+```bash
+# 対話シェルに入る（初回はイメージビルドとセットアップが実行されます）
+.apple-container/apple-container-exec.sh
+
+# コマンドを1回だけ実行する
+.apple-container/apple-container-exec.sh exec -Command "bun run test"
+```
+
+サブコマンド一覧です。
+
+| コマンド | 説明 |
+| --- | --- |
+| `exec` | コンテナを起動してコマンドを実行（デフォルト。コンテナが無ければ作成します） |
+| `up` | コンテナの作成・起動とセットアップのみ実行 |
+| `build` | イメージを再ビルド（`.devcontainer/Dockerfile`） |
+| `stop` | コンテナを停止 |
+| `down` | コンテナを削除（ボリュームは保持） |
+| `clean` | コンテナとボリューム（node_modules / .venv / キャッシュ）を削除 |
+| `status` | コンテナの状態・IP アドレス・ボリュームを表示 |
+| `ip` | コンテナの IP アドレスのみ表示（スクリプトからの利用向け） |
+
+### ポートアクセス（Apple Container）
+
+Apple Container ではコンテナごとに固有の IP アドレス（`192.168.64.x`）が割り当てられます。アプリを `0.0.0.0` に bind して起動すれば、ホストのブラウザから `http://<コンテナIP>:<port>` でアクセスできます。worktree ごとに IP が異なるため、Dev Container のようなホスト側ポートの競合は発生しません。
+
+```bash
+IP=$(.apple-container/apple-container-exec.sh ip)
+# コンテナ内で bun run dev (0.0.0.0:5173 に bind) を起動後:
+open "http://$IP:5173"
+```
+
+コンテナの IP は再起動のたびに変わります。安定した名前でアクセスしたい場合は `AC_DNS_DOMAIN` を設定してください（初回のみ sudo が必要です）。
+
+```bash
+# ~/.zshrc などに設定
+export AC_DNS_DOMAIN=test
+# 以後、http://<container-name>.test:<port> でアクセス可能
+```
+
+ホスト側の固定ポートに公開したい場合は `AC_PORTS` を指定します（コンテナ再作成時に反映されます）。
+
+```bash
+AC_PORTS="5173:5173 127.0.0.1:8000:8000" .apple-container/apple-container-exec.sh up
+```
+
+### 環境変数（Apple Container）
+
+| 変数 | 既定値 | 説明 |
+| --- | --- | --- |
+| `AC_CPUS` | `4` | コンテナに割り当てる CPU 数 |
+| `AC_MEMORY` | `8G` | コンテナに割り当てるメモリ |
+| `AC_PORTS` | なし | ホストに公開するポート（空白区切り） |
+| `AC_DNS_DOMAIN` | なし | コンテナ名で名前解決する DNS ドメイン（要 sudo） |
+| `AC_DNS_SERVERS` | 自動検出 | コンテナが使う DNS サーバー（空白区切り） |
+| `AC_NO_SETUP` | なし | `1` で `auto-setup.sh` / `post-start.sh` をスキップ |
+
+### Dev Container との対応・差異
+
+- イメージ: 同一の `.devcontainer/Dockerfile` を使用（BuildKit のキャッシュマウントも動作します）
+- マウント / ボリューム / 環境変数 / 実行ユーザー（`node`）: `devcontainer.json` および `docker-compose.yml` の構成を再現しています
+- バインドマウント上のホストファイルはコンテナ内では `root:root` に見えますが、virtiofs 経由で `node` ユーザーからも読み書きできます（Docker Desktop と同様の挙動です）
+- VS Code の Dev Containers 拡張機能による Ports ビュー連携・自動ポート転送は使えません。上記の IP アクセスを利用してください
+- Apple Container の名前付きボリュームは ext4 のため `lost+found` が含まれます。`auto-setup.sh` はこれを考慮して動作します
+- ホストの上流 DNS が IPv6 のみの環境ではコンテナのデフォルト DNS が失敗するため、スクリプトがホストの IPv4 DNS を自動検出してコンテナに設定します（`AC_DNS_SERVERS` で上書き可能）
