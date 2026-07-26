@@ -3,8 +3,8 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-06-12T14:47:34.294612Z"
-exclude-newer-span = "P3D"
+exclude-newer = "2026-07-19T05:03:27.355890006Z"
+exclude-newer-span = "P7D"
 
 [[package]]
 name = "my-repository-template"

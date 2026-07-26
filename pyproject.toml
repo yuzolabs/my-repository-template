@@ -11,4 +11,4 @@ dev = [
 ]
 
 [tool.uv]
-exclude-newer = "3 days"
+exclude-newer = "7 days"

@@ -4,8 +4,8 @@
 
 set -e
 
-MINIMUM_RELEASE_AGE_SECONDS=$((3 * 24 * 60 * 60))
-EXCLUDE_NEWER_UTC=$(date -u -d '3 days ago' +%Y-%m-%dT%H:%M:%SZ)
+MINIMUM_RELEASE_AGE_SECONDS=$((7 * 24 * 60 * 60))
+EXCLUDE_NEWER_UTC=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
 
 echo "=== DevContainer Auto Setup ==="
 echo "Workspace: /workspace"
