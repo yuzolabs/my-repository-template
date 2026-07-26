@@ -119,4 +119,11 @@ else
     echo "pre-commit hook already installed"
 fi
 
+# pre-commit フックのフォールバック用に prek を PATH 上に用意する
+# (フックがホスト側で生成されている場合、ハードコードされたホスト側パスはコンテナ内で無効になり、
+#  PATH 上の prek へフォールバックされるため)
+if [ -x "$WORKSPACE_ROOT/.venv/bin/prek" ]; then
+    sudo ln -sf "$WORKSPACE_ROOT/.venv/bin/prek" /usr/local/bin/prek 2>/dev/null || true
+fi
+
 echo "=== Dev Container Setup Complete ==="
