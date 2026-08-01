@@ -1,51 +1,43 @@
 # Agent Instructions
 
-**Think in English, output in Japanese.**
+## Commit
 
-## Environment
+Don't use `git commit --no-verify`.
 
-- bun (always use `bun install --frozen-lockfile` to install dependencies)
-- uv (python packages management)
+## Commit Message
 
-## Notice
+Commit messages must be written in **English** and follow the Conventional Commits.
 
-- Do not modify `package.json`/lockfiles to add or update dependencies without explicit user approval.
-- Do not chain `cd` commands with `&&`.
+Format:
 
-## Tools Selection in shell
+```
+<type>[optional scope]: <description>
 
-When you need to call tools from the shell, use this guide:
+[optional body]
 
-- Exclude bulky folders to keep searches fast and relevant: `.git` and `node_modules`
-- Also exclude `coverage`, `out`, `dist`, and `.venv`
-- Find files by file name: `fd`
-- Find files with path name: `fd -p <file-path>`
-- List files in a directory: `fd . <directory>`
-- Find files with extension and pattern: `fd -e <extension> <pattern>`
-- Find Text: `rg` (ripgrep)
-- Prefer running searches against a scoped path (e.g., `src`) to implicitly avoid vendor and VCS directories.
-- Examples:
-  - `fd --hidden --exclude .git --exclude node_modules --exclude coverage --exclude out --exclude dist --type f ".tsx?$" src`
-  - `rg -n "pattern" -g "!{.git,node_modules,coverage,out,dist}" src`
-- Find Code Structure: `ast-grep`
-  - Default to TypeScript when in TS/TSX repos:
-    - `.ts` → `ast-grep --lang ts -p '<pattern>'`
-    - `.tsx` (React) → `ast-grep --lang tsx -p '<pattern>'`
-  - Other common languages:
-    - Python → `ast-grep --lang python -p '<pattern>'`
-    - Bash → `ast-grep --lang bash -p '<pattern>'`
-    - JavaScript → `ast-grep --lang js -p '<pattern>'`
-    - Rust → `ast-grep --lang rust -p '<pattern>'`
-    - JSON → `ast-grep --lang json -p '<pattern>'`
-  - TypeScript quick actions:
-    - If `ast-grep` is available, avoid `rg` or `grep` unless a plain-text search is explicitly requested.
-    - Prefer `tsx` for fast Node execution.
-    - Structured search and refactors with `ast-grep`.
-    - Find all exported interfaces: `ast-grep --lang ts -p 'export interface $I { ... }'`.
-    - Find default exports: `ast-grep --lang ts -p 'export default $X'`.
-    - Find a function call with args: `ast-grep --lang ts -p 'axios.get($URL, $$REST)'`.
-    - Rename an imported specifier (codemod): `ast-grep --lang ts -p 'import { $Old as $Alias } from "$M"' --rewrite 'import { $Old } from "$M"' -U`.
-    - Disallow await in Promise.all items (quick fix): `ast-grep --lang ts -p 'await $X' --inside 'Promise.all($_)' --rewrite '$X'`.
-    - React hook smell: empty deps array in useEffect: `ast-grep --lang tsx -p 'useEffect($FN, [])'`.
-    - List matching files then pick with fzf: `ast-grep --lang ts -p '<pattern>' -l | fzf -m | xargs -r sed -n '1,120p'`.
-- JSON: `jq`
+[optional footer(s)]
+```
+
+- `type`: one of `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `revert`
+- `scope`: optional, a noun describing the affected area of the codebase
+- `description`: a short summary of the change in the imperative mood (e.g. "add feature", not "added feature")
+- `body`: optional, explain *what* and *why* (not *how*), wrap at ~72 characters
+- `footer`: optional, e.g. `BREAKING CHANGE: <description>` to note breaking changes, or `Closes #123` for issue references
+
+Examples:
+
+```
+feat(api): add endpoint to export user data
+```
+
+```
+fix: prevent crash on empty input
+
+Closes #42
+```
+
+```
+refactor(parser)!: rename `parseTokens` to `lex`
+
+BREAKING CHANGE: the public `parseTokens` function is now `lex`.
+```
