@@ -216,24 +216,17 @@ resolve_gh_token() {
   log_warn "GH_TOKEN is not set. Continuing without authentication."
 }
 
-# opencode の設定ファイルがホストに無い場合は空ファイルを作成する
-# (README の「空ファイルとして作成してください」に相当するフォールバック)
-ensure_opencode_host_config() {
-  local share_dir="$HOME/.local/share/opencode"
-  local config_dir="$HOME/.config/opencode"
-  mkdir -p "$share_dir" "$config_dir"
-  local f
-  for f in \
-    "$share_dir/auth.json" \
-    "$config_dir/oh-my-opencode.json" \
-    "$config_dir/opencode.json" \
-    "$config_dir/tui.json"; do
-    if [[ ! -f "$f" ]]; then
-      log_warn "Created empty file: $f"
-      log_warn "Run 'opencode auth login' on the host if you need authenticated models."
-      touch "$f"
-    fi
-  done
+# Pi の設定ディレクトリがホストに無い場合は空の auth.json を作成する
+# (README の認証不要時のフォールバックに相当する)
+ensure_pi_host_config() {
+  local agent_dir="$HOME/.pi/agent"
+  local auth_file="$agent_dir/auth.json"
+  mkdir -p "$agent_dir"
+  if [[ ! -f "$auth_file" ]]; then
+    printf '%s\n' '{}' > "$auth_file"
+    log_warn "Created empty Pi auth file: $auth_file"
+    log_warn "Run 'pi' on the host and use /login if you need authenticated models."
+  fi
 }
 
 # コンテナのデフォルト DNS (ゲートウェイ 192.168.64.1 経由) は、ホストの上流 DNS が
@@ -328,8 +321,7 @@ create_container() {
     -v "$(dirname "$WORKSPACE_PATH"):/workspaces/$REPO_NAME.worktrees"
     -v "$WORKSPACE_PATH/.devcontainer/.git-container:/workspace/.git"
     -v "$WORKSPACE_PATH/.devcontainer/.gitdir-container:/workspaces/$REPO_NAME/.git/worktrees/$WORKSPACE_NAME/gitdir"
-    -v "$HOME/.local/share/opencode:/host-config/opencode/share:ro"
-    -v "$HOME/.config/opencode:/host-config/opencode/config:ro"
+    -v "$HOME/.pi/agent:/host-config/pi/agent:ro"
     -v "${VOLUME_NAMES[0]}:/home/node/.bun/install/cache"
     -v "${VOLUME_NAMES[1]}:/home/node/.cache/uv"
     -v "${VOLUME_NAMES[2]}:/workspace/node_modules"
@@ -430,7 +422,7 @@ do_up() {
   resolve_workspace
   run_host_initialize
   resolve_gh_token
-  ensure_opencode_host_config
+  ensure_pi_host_config
   ensure_dns_domain
   resolve_dns_servers
   ensure_image
