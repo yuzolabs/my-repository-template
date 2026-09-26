@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      # opencode関連のマウントは devcontainer.json で定義（クロスプラットフォーム対応）
+      # Pi関連のマウントは devcontainer.json で定義（クロスプラットフォーム対応）
       - type: volume
         source: bun-cache
         target: /home/node/.bun/install/cache

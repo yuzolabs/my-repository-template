@@ -13,7 +13,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.10.12 /uv /uvx /usr/local/bin/
 
 # Install bun
 ENV BUN_INSTALL=/home/node/.bun
-RUN mkdir -p /home/node/.bun /home/node/.local/share/opencode \
+RUN mkdir -p /home/node/.bun /home/node/.pi/agent \
     && curl -fsSL https://bun.com/install | bash \
     && mkdir -p /home/node/.bun/install/cache /home/node/.bun/bin /home/node/.bun/install/global \
     && chown -R node:node /home/node /home/node/.bun \
@@ -22,7 +22,8 @@ RUN mkdir -p /home/node/.bun /home/node/.local/share/opencode \
 ENV PATH=${BUN_INSTALL}/bin:/usr/local/bin:${PATH}
 ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Install opencode as node user
+# Install Pi as node user. Lifecycle scripts are not required for Pi.
 USER node
 RUN --mount=type=cache,id=bun-cache-v2,target=/home/node/.bun/install/cache,uid=1000,gid=1000 \
-    bun add --minimum-release-age 604800 -g opencode-ai oh-my-openagent agent-browser typescript-language-server typescript
+    bun add --minimum-release-age 604800 --ignore-scripts -g @earendil-works/pi-coding-agent \
+    && bun add --minimum-release-age 604800 -g agent-browser typescript-language-server typescript

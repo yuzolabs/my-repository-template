@@ -71,27 +71,18 @@ sudo chown -R node:node /home/node/.bun/install/cache 2>/dev/null || true
 sudo mkdir -p /home/node/.cache/uv 2>/dev/null || true
 sudo chown -R node:node /home/node/.cache 2>/dev/null || true
 
-# opencode設定の初期化（ホスト設定をコピーして使用）
-CONTAINER_OPENCODE_CONFIG="/home/node/.config/opencode"
-CONTAINER_OPENCODE_SHARE="/home/node/.local/share/opencode"
-HOST_OPENCODE_CONFIG="/host-config/opencode/config"
-HOST_OPENCODE_SHARE="/host-config/opencode/share"
+# Pi設定の初期化（ホスト設定をコピーして使用）
+# sessions は作業ディレクトリに紐づくためコピーしない
+CONTAINER_PI_AGENT="/home/node/.pi/agent"
+HOST_PI_AGENT="/host-config/pi/agent"
 
-# コンテナ内にディレクトリを作成
-mkdir -p "$CONTAINER_OPENCODE_CONFIG"
-mkdir -p "$CONTAINER_OPENCODE_SHARE"
+mkdir -p "$CONTAINER_PI_AGENT"
 
-# ホストの設定をコンテナにコピー（既にコピー済みでない場合のみ）
-if [ -d "$HOST_OPENCODE_CONFIG" ] && [ ! -f "$CONTAINER_OPENCODE_CONFIG/.copied" ]; then
-    echo "Copying host opencode config to container..."
-    cp -r "$HOST_OPENCODE_CONFIG/"* "$CONTAINER_OPENCODE_CONFIG/" 2>/dev/null || true
-    touch "$CONTAINER_OPENCODE_CONFIG/.copied"
-fi
-
-if [ -d "$HOST_OPENCODE_SHARE" ] && [ ! -f "$CONTAINER_OPENCODE_SHARE/.copied" ]; then
-    echo "Copying host opencode share data to container..."
-    cp -r "$HOST_OPENCODE_SHARE/"* "$CONTAINER_OPENCODE_SHARE/" 2>/dev/null || true
-    touch "$CONTAINER_OPENCODE_SHARE/.copied"
+if [ -d "$HOST_PI_AGENT" ] && [ ! -f "$CONTAINER_PI_AGENT/.copied" ]; then
+    echo "Copying host Pi config to container..."
+    cp -a "$HOST_PI_AGENT/." "$CONTAINER_PI_AGENT/" 2>/dev/null || true
+    rm -rf "$CONTAINER_PI_AGENT/sessions"
+    touch "$CONTAINER_PI_AGENT/.copied"
 fi
 
 

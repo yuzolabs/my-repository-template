@@ -80,9 +80,8 @@
 		"source=${localWorkspaceFolder}/..,target=/workspaces/my-repository-template.worktrees,type=bind,consistency=cached",
 		"source=${localWorkspaceFolder}/.devcontainer/.git-container,target=/workspace/.git,type=bind,consistency=cached",
 		"source=${localWorkspaceFolder}/.devcontainer/.gitdir-container,target=/workspaces/my-repository-template/.git/worktrees/${localWorkspaceFolderBasename}/gitdir,type=bind,consistency=cached",
-		// opencode設定ファイルのマウント（ホスト設定を読み取り専用でマウント、コンテナ内でコピーして使用）
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.local/share/opencode,target=/host-config/opencode/share,type=bind,consistency=cached,readonly",
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/opencode,target=/host-config/opencode/config,type=bind,consistency=cached,readonly",
+		// Pi設定のマウント（ホストの ~/.pi/agent を読み取り専用でマウントし、コンテナ内でコピーして使用）
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.pi/agent,target=/host-config/pi/agent,type=bind,consistency=cached,readonly",
 		// git configのマウント（ホスト設定を読み取り専用でマウント、コンテナ内でコピーして使用）
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/host-config/.gitconfig,type=bind,consistency=cached,readonly"
 	],

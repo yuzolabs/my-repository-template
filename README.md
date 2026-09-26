@@ -1,6 +1,6 @@
 # my-repository-template
 
-開発効率を最大化するための、Dev Container、git worktree、および OpenCode を活用した開発リポジトリ用テンプレートです。
+開発効率を最大化するための、Dev Container、git worktree、および Pi を活用した開発リポジトリ用テンプレートです。
 
 ## テンプレートの使い始め方
 
@@ -118,12 +118,9 @@ git worktree add ../my-app.worktrees/feat-login -b feat-login
 
 Docker Desktop と WSL2 が必要です。
 
-自分の環境と同じ opencode の設定を自動で反映したい場合は、以下のディレクトリにある設定ファイルを WSL2 側にコピーしておく必要があります。
+自分の環境と同じ Pi の設定を自動で反映したい場合は、以下のディレクトリを WSL2 側にコピーしておく必要があります。
 
-- `$HOME/.local/share/opencode/auth.json`
-- `$HOME/.config/opencode/oh-my-opencode.json`
-- `$HOME/.config/opencode/opencode.json`
-- `$HOME/.config/opencode/tui.json`
+- `$HOME/.pi/agent`
 
 ### macOS, Linuxの場合
 
@@ -131,18 +128,19 @@ Docker（Docker Desktop または Docker Engine）が必要です。
 
 macOS (Apple silicon, macOS 26 以降) の場合は、Docker の代わりに [Apple Container](https://github.com/apple/container) を使うこともできます。詳しくは「[Apple Container の使い方 (macOS)](#apple-container-の使い方-macos)」を参照してください。
 
-opencode の設定ファイルについては、ホスト側の設定をそのまま使用できます。
+Pi の設定ディレクトリについては、ホスト側の設定をそのまま使用できます。
 
-### OpenCodeの設定
+### Piの設定
 
-このリポジトリでは OpenCode を使うことを前提としているので、`$HOME/.local/share/opencode/auth.json`が存在しないと Dev Container の作成に失敗します。
-Windows は WSL2 上、Mac の場合は通常の環境にて`opencode auth login`による認証を1回以上行ってください。
+このリポジトリでは Pi を使うことを前提としているので、`$HOME/.pi/agent`が存在しないと Dev Container の作成に失敗します。
+Windows は WSL2 上、Mac または Linux の場合は通常の環境で `pi` を起動し、`/login` で認証を1回以上行ってください。認証情報は `$HOME/.pi/agent/auth.json` に保存されます。
 
-もし OpenCode にて認証をしなくても使えるモデルのみを使用する場合は、空ファイルとして作成してください。
+もし認証が不要なモデルのみを使用する場合は、次のコマンドで空の認証ファイルを作成してください。空ファイルだと Pi が読めないため、中身は `{}` にします。
 
-### MCPサーバーのセットアップ
-
-環境変数`CONTEXT7_API_KEY`に Context7の API キーを設定してください。
+```bash
+mkdir -p ~/.pi/agent
+printf '%s\n' '{}' > ~/.pi/agent/auth.json
+```
 
 ### Dev Containerについて
 

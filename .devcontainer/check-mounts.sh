@@ -46,27 +46,20 @@ echo ""
 
 FAILED=0
 
-check_mount "${HOME}/.local/share/opencode/auth.json" "/home/node/.local/share/opencode/auth.json" || FAILED=$((FAILED + 1))
-check_mount "${HOME}/.config/opencode/oh-my-opencode.json" "/home/node/.config/opencode/oh-my-opencode.json" || FAILED=$((FAILED + 1))
-check_mount "${HOME}/.config/opencode/opencode.json" "/home/node/.config/opencode/opencode.json" || FAILED=$((FAILED + 1))
-check_mount "${HOME}/.config/opencode/tui.json" "/home/node/.config/opencode/tui.json" || FAILED=$((FAILED + 1))
+check_mount "~/.pi/agent/auth.json" "/host-config/pi/agent/auth.json" || FAILED=$((FAILED + 1))
 
 echo "========================================"
 
 if [ $FAILED -gt 0 ]; then
   echo ""
   echo "${YELLOW}$FAILED file(s) not mounted correctly.${NC}"
-  echo "To fix this, run the following on your host machine:"
+  echo "To fix this, run Pi on your host machine and use /login."
+  echo "Credentials are saved to ~/.pi/agent/auth.json."
   echo ""
-  echo "  opencode auth login"
+  echo "Or create an empty auth file if you don't need authentication:"
   echo ""
-  echo "Or create empty files if you don't need authentication:"
-  echo ""
-  echo "  mkdir -p ~/.local/share/opencode ~/.config/opencode"
-  echo "  touch ~/.local/share/opencode/auth.json"
-  echo "  touch ~/.config/opencode/oh-my-opencode.json"
-  echo "  touch ~/.config/opencode/opencode.json"
-  echo "  touch ~/.config/opencode/tui.json"
+  echo "  mkdir -p ~/.pi/agent"
+  echo "  printf '%s\n' '{}' > ~/.pi/agent/auth.json"
   echo ""
 fi
 
