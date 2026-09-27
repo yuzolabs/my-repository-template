@@ -5,7 +5,7 @@
     "": {
       "name": "my-repository-template",
       "devDependencies": {
-        "@textlint-ja/textlint-rule-preset-ai-writing": "^1.6.1",
+        "@textlint-ja/textlint-rule-preset-ai-writing": "^1.7.0",
         "markdownlint-cli2": "^0.23.3",
         "textlint": "^15.8.0",
         "textlint-rule-ja-space-between-half-and-full-width": "^2.4.2",
@@ -58,7 +58,7 @@
 
     "@sindresorhus/merge-streams": ["@sindresorhus/merge-streams@4.0.0", "", {}, "sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ=="],
 
-    "@textlint-ja/textlint-rule-preset-ai-writing": ["@textlint-ja/textlint-rule-preset-ai-writing@1.6.1", "", { "dependencies": { "@textlint/regexp-string-matcher": "^2.0.2", "kuromojin": "^3.0.1", "textlint-util-to-string": "^3.3.4" } }, "sha512-UvWK2UnYwObEHh1yP4tbHmWc1UBYRUIaeiSBdBz8pS6Ks+SEMq7u2ZMqYY2kh2e2VjoBidvu28+eN1g2YzXQjw=="],
+    "@textlint-ja/textlint-rule-preset-ai-writing": ["@textlint-ja/textlint-rule-preset-ai-writing@1.7.0", "", { "dependencies": { "@textlint/regexp-string-matcher": "^2.0.2", "kuromojin": "^3.0.1", "textlint-util-to-string": "^3.3.4" } }, "sha512-xq+y592q4qP4SK5Vs40JRi98BmpJJoIaUO8/U+puOErCyazQvoZqDswIuKsFi1IEFmZ/wNn8OkfJ/5GNhrppNw=="],
 
     "@textlint-rule/textlint-rule-no-invalid-control-character": ["@textlint-rule/textlint-rule-no-invalid-control-character@3.0.0", "", {}, "sha512-2o9n4z49ntSPtJPlcJtxakyB4dAg2MKSvR9ZCZEHjye0ee27oWYzK6yHz2HjsXQqt9VeCwxNHDOIGIx2CQX0Dw=="],
 
