@@ -1,0 +1,48 @@
+version: 2
+
+# Major updates also create PRs, but are never auto-merged by the workflow.
+updates:
+  - package-ecosystem: bun
+    cooldown:
+      default-days: 7
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: uv
+    cooldown:
+      default-days: 7
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: github-actions
+    cooldown:
+      default-days: 7
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci(deps)"
+
+  - package-ecosystem: docker
+    cooldown:
+      default-days: 7
+    directory: /.devcontainer
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: pre-commit
+    cooldown:
+      default-days: 7
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
