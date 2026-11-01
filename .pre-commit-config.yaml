@@ -18,7 +18,7 @@ repos:
       - id: gitleaks
 
   - repo: https://github.com/semgrep/semgrep
-    rev: e279a884ad6f16b050de690bdfdc26e921c364dc # v1.177.0
+    rev: 240da9f30cd06fb4ee00c2c31c114c1c1f5ee0f4 # v1.182.0
     hooks:
       - id: semgrep
         args: ['--config', 'auto', '--error']
